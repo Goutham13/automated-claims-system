@@ -25,7 +25,9 @@ from tools.claims_history import (
 # ---------------------------------------------------------------------------
 # Policy terms — loaded once at module import.
 # ---------------------------------------------------------------------------
-_POLICY_TERMS_PATH = pathlib.Path(__file__).parent.parent.parent.parent / "policy_terms.json"
+_POLICY_TERMS_PATH = pathlib.Path(__file__).parent.parent.parent / "policy_terms.json"
+if not _POLICY_TERMS_PATH.exists():
+    _POLICY_TERMS_PATH = pathlib.Path(__file__).parent.parent.parent.parent / "policy_terms.json"
 with open(_POLICY_TERMS_PATH) as _f:
     _PT: dict[str, Any] = json.load(_f)
 
