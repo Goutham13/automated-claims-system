@@ -56,7 +56,7 @@ jobs:
             --memory 2Gi \
             --cpu 2 \
             --max-instances 10 \
-            --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GOOGLE_CLOUD_LOCATION=global \
+            --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GOOGLE_CLOUD_LOCATION=global,FRONTEND_BASE_URL=${{ secrets.UI_BASE_URL }} \
             --set-secrets DATABASE_URL=DATABASE_URL:latest \
             --add-cloudsql-instances ${{ env.CLOUDSQL_INSTANCE }}
 
