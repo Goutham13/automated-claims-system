@@ -23,7 +23,6 @@ DocumentType = Literal[
     "PRESCRIPTION",
     "HOSPITAL_BILL",
     "LAB_REPORT",
-    "DIAGNOSTIC_REPORT",
     "PHARMACY_BILL",
     "DENTAL_REPORT",
     "DISCHARGE_SUMMARY",
@@ -64,7 +63,7 @@ Document requirements (use exactly these rules):
 
 CONSULTATION:
   required: PRESCRIPTION, HOSPITAL_BILL
-  optional: LAB_REPORT, DIAGNOSTIC_REPORT
+  optional: LAB_REPORT
 
 DIAGNOSTIC:
   required: PRESCRIPTION, LAB_REPORT, HOSPITAL_BILL

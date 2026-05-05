@@ -14,7 +14,6 @@ DocumentType = Literal[
     "PRESCRIPTION",
     "HOSPITAL_BILL",
     "LAB_REPORT",
-    "DIAGNOSTIC_REPORT",
     "PHARMACY_BILL",
     "DENTAL_REPORT",
     "DISCHARGE_SUMMARY",
@@ -99,20 +98,16 @@ Document type definitions and REQUIRED signals:
 - Strong cues: test name, result value, reference range or unit, lab name, report date.
 - REQUIRED signals (need at least 2 of 3): test name with result, lab identifier, report/sample date.
 
-4) DIAGNOSTIC_REPORT:
-- Same structure as LAB_REPORT but for imaging or diagnostic procedures (X-ray, MRI, etc.).
-- REQUIRED signals (need at least 2 of 3): procedure/test name, finding or impression, patient identifier.
-
-5) PHARMACY_BILL:
+4) PHARMACY_BILL:
 - Strong cues: pharmacy/store header, drug license number, medicine rows with batch/expiry/qty/MRP,
   net amount, pharmacist stamp.
 - REQUIRED signals (need at least 2 of 3): pharmacy identifier, at least one medicine entry, monetary amount.
 
-6) DENTAL_REPORT:
+5) DENTAL_REPORT:
 - Strong cues: dental terms (caries, root canal, extraction, crown, filling), dentist name.
 - REQUIRED signals (need at least 2 of 2): dental procedure or diagnosis term, dentist or clinic identifier.
 
-7) DISCHARGE_SUMMARY:
+6) DISCHARGE_SUMMARY:
 - Strong cues: admission date, discharge date, final diagnosis, treatment summary, hospital header.
 - REQUIRED signals (need at least 2 of 3): admission/discharge dates, final diagnosis, hospital identifier.
 

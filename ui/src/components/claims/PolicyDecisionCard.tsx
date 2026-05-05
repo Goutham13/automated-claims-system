@@ -50,7 +50,7 @@ function fmt(amount: number) {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
 }
 
-export function PolicyDecisionCard({ decision }: { decision: PolicyDecision }) {
+export function PolicyDecisionCard({ decision, showRuleFindings = false }: { decision: PolicyDecision; showRuleFindings?: boolean }) {
   const cfg = DECISION_CONFIG[decision.decision];
   const Icon = cfg.icon;
   const confidencePct = Math.round(decision.confidence_score * 100);
@@ -90,8 +90,8 @@ export function PolicyDecisionCard({ decision }: { decision: PolicyDecision }) {
       {/* Reason */}
       <p className={cn("mt-3 text-sm", cfg.text)}>{decision.reason}</p>
 
-      {/* Rule findings */}
-      {decision.rule_findings.length > 0 && (
+      {/* Rule findings — staff only */}
+      {showRuleFindings && decision.rule_findings.length > 0 && (
         <details className="mt-3">
           <summary className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-foreground select-none">
             Rule findings ({decision.rule_findings.length})

@@ -4,7 +4,6 @@ import { useAuth } from "@/context/AuthContext";
 import { getAuthToken } from "@/lib/auth-api";
 import { API_BASE_URL } from "@/lib/claims-api";
 import { StatusBadge } from "@/components/claims/StatusBadge";
-import { JsonViewer } from "@/components/claims/JsonViewer";
 import { Button } from "@/components/ui/button";
 import { LogOut, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 
@@ -203,10 +202,10 @@ function StaffClaimsPage() {
                               <div>
                                 <span className="text-muted-foreground">Status </span>
                                 <span className="font-semibold text-foreground">
-                                  {String(claim.pipeline_trace.final_status ?? "—")}
+                                  {String((claim.pipeline_trace.final_status as string | null | undefined) ?? "—")}
                                 </span>
                               </div>
-                              {claim.pipeline_trace.final_ops_summary && (
+                              {claim.pipeline_trace.final_ops_summary != null && (
                                 <div className="flex-1">
                                   <span className="text-muted-foreground">Summary </span>
                                   <span className="text-foreground">
@@ -216,7 +215,7 @@ function StaffClaimsPage() {
                               )}
                             </div>
                             {/* Member message */}
-                            {claim.pipeline_trace.final_member_message && (
+                            {claim.pipeline_trace.final_member_message != null && (
                               <div className="rounded-md border border-border p-3 text-sm text-foreground">
                                 <div className="mb-1 text-xs font-medium text-muted-foreground">
                                   Member message
@@ -226,38 +225,63 @@ function StaffClaimsPage() {
                             )}
                             {/* Steps */}
                             {Array.isArray(claim.pipeline_trace.steps) &&
-                              (claim.pipeline_trace.steps as Record<string, unknown>[]).map((step, i) => (
-                                <div key={i} className="rounded-md border border-border p-3 text-xs">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono text-muted-foreground">Step {i + 1}</span>
-                                    <span className="font-semibold uppercase text-foreground">
-                                      {String(step.step_name ?? "")}
-                                    </span>
-                                    <span className="rounded bg-muted px-1.5 py-0.5 font-medium">
-                                      {String(step.status ?? "")}
-                                    </span>
+                              (claim.pipeline_trace.steps as Record<string, unknown>[]).map((step, i) => {
+                                const isPolicyStep = String(step.step_name ?? "").toUpperCase() === "POLICY_DECISION";
+                                const policyDecision = isPolicyStep
+                                  ? (claim.pipeline_trace!.policy_decision as Record<string, unknown> | undefined)
+                                  : undefined;
+                                const ruleFindings = Array.isArray(policyDecision?.rule_findings)
+                                  ? (policyDecision!.rule_findings as Record<string, unknown>[])
+                                  : [];
+                                const RULE_COLOR: Record<string, string> = {
+                                  PASS: "text-emerald-700",
+                                  FAIL: "text-red-700",
+                                  INCONCLUSIVE: "text-amber-700",
+                                  MANUAL_REVIEW: "text-orange-700",
+                                };
+                                return (
+                                  <div key={i} className="rounded-md border border-border p-3 text-xs">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-mono text-muted-foreground">Step {i + 1}</span>
+                                      <span className="font-semibold uppercase text-foreground">
+                                        {String(step.step_name ?? "").replace(/_/g, " ")}
+                                      </span>
+                                      <span className="rounded bg-muted px-1.5 py-0.5 font-medium">
+                                        {String(step.status ?? "")}
+                                      </span>
+                                    </div>
+                                    {step.summary != null && (
+                                      <p className="mt-1 text-muted-foreground">{String(step.summary)}</p>
+                                    )}
+                                    {Array.isArray(step.key_findings) && step.key_findings.length > 0 && (
+                                      <ul className="mt-1.5 list-disc pl-4 text-muted-foreground">
+                                        {(step.key_findings as string[]).map((f, fi) => (
+                                          <li key={fi}>{f}</li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                    {ruleFindings.length > 0 && (
+                                      <div className="mt-2 space-y-1">
+                                        <div className="font-medium text-foreground">Rule findings</div>
+                                        {ruleFindings.map((rf, ri) => (
+                                          <div key={ri} className="flex items-start gap-2">
+                                            <span className={`shrink-0 font-semibold uppercase ${RULE_COLOR[String(rf.result)] ?? "text-foreground"}`}>
+                                              {String(rf.result)}
+                                            </span>
+                                            <span className="text-muted-foreground">
+                                              <span className="font-medium text-foreground">
+                                                {String(rf.check ?? "").replace(/_/g, " ")}
+                                              </span>
+                                              {rf.detail ? ` — ${String(rf.detail)}` : ""}
+                                              {rf.approved_amount != null ? ` (₹${Number(rf.approved_amount).toLocaleString("en-IN")})` : ""}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
-                                  {step.summary && (
-                                    <p className="mt-1 text-muted-foreground">{String(step.summary)}</p>
-                                  )}
-                                  {Array.isArray(step.key_findings) && step.key_findings.length > 0 && (
-                                    <ul className="mt-1.5 list-disc pl-4 text-muted-foreground">
-                                      {(step.key_findings as string[]).map((f, fi) => (
-                                        <li key={fi}>{f}</li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-                              ))}
-                            {/* Full JSON */}
-                            <details className="mt-2">
-                              <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
-                                Raw trace JSON
-                              </summary>
-                              <div className="mt-2">
-                                <JsonViewer data={claim.pipeline_trace} />
-                              </div>
-                            </details>
+                                );
+                              })}
                           </div>
                         ) : (
                           <p className="text-sm text-muted-foreground">

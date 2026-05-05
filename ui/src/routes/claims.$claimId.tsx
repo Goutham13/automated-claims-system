@@ -97,7 +97,7 @@ function ClaimDetailPage() {
             <div className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Claim Decision
             </div>
-            <PolicyDecisionCard decision={active.policyDecision} />
+            <PolicyDecisionCard decision={active.policyDecision} showRuleFindings={isStaff} />
           </div>
         )}
 

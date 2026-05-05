@@ -2,7 +2,7 @@ import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-r
 
 import appCss from "../styles.css?url";
 import { ClaimsProvider } from "@/context/ClaimsContext";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 function NotFoundComponent() {
   return (
@@ -68,12 +68,17 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ClaimsProviderScoped({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  return <ClaimsProvider key={user?.sub ?? "guest"}>{children}</ClaimsProvider>;
+}
+
 function RootComponent() {
   return (
     <AuthProvider>
-      <ClaimsProvider>
+      <ClaimsProviderScoped>
         <Outlet />
-      </ClaimsProvider>
+      </ClaimsProviderScoped>
     </AuthProvider>
   );
 }

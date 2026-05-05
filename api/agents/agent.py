@@ -175,6 +175,8 @@ POLICY_DECISION stage:
     extracted_documents_json → JSON-serialised list of ALL DocumentExtractionResult
                                objects from the DOCUMENT_EXTRACTION stage. Collect
                                every extraction result and serialise as a JSON string.
+    claims_history_json      → JSON-serialised list of prior claims from intake metadata.claims_history.
+                               Each entry has at minimum: claim_id, date, amount. Pass "[]" if absent.
 
   run_policy_decision runs all policy checks internally and returns a PolicyDecision
   dict directly. Do NOT pass YTD amounts or member details — the function fetches

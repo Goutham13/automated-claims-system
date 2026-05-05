@@ -568,6 +568,7 @@ def check_fraud_signals(
     member_id: str,
     treatment_date: str,
     claimed_amount: float,
+    claims_history: list[dict] | None = None,
 ) -> dict[str, Any]:
     thresholds: dict[str, Any] = _PT.get("fraud_thresholds", {})
     same_day_limit: int = int(thresholds.get("same_day_claims_limit", 2))
@@ -575,7 +576,16 @@ def check_fraud_signals(
     high_value_threshold: float = float(thresholds.get("auto_manual_review_above", 25000))
 
     signals: list[str] = []
-    same_day_count = _get_same_day_count(member_id, treatment_date)
+
+    # Use intake-supplied claims_history when available; fall back to DB lookup.
+    if claims_history:
+        same_day_count = sum(
+            1 for c in claims_history
+            if str(c.get("date", "")).startswith(treatment_date)
+        )
+    else:
+        same_day_count = _get_same_day_count(member_id, treatment_date)
+
     if same_day_count > same_day_limit:
         signals.append(f"Same-day claims: {same_day_count} on {treatment_date} (limit: {same_day_limit}).")
 
@@ -720,6 +730,7 @@ def run_policy_decision(
     relationship_claim_type: str,
     patient_member_id: str | None,
     extracted_documents_json: str,
+    claims_history_json: str = "[]",
 ) -> dict[str, Any]:
     """
     Run all seven policy-rule checks in sequence and return a PolicyDecision dict.
@@ -743,6 +754,12 @@ def run_policy_decision(
         dict matching the PolicyDecision schema with keys: decision, approved_amount,
         copay_amount, reason, confidence_score, rule_findings.
     """
+    # Parse claims history (prior claims supplied by the intake input)
+    try:
+        claims_history: list[dict] = json.loads(claims_history_json) if claims_history_json else []
+    except (json.JSONDecodeError, TypeError):
+        claims_history = []
+
     # Parse extraction results
     try:
         extracted_docs: list[dict] = json.loads(extracted_documents_json) if extracted_documents_json else []
@@ -816,7 +833,7 @@ def run_policy_decision(
         copay_amount = float(r.get("copay_amount", 0.0))
 
     # --- Tool 6: Fraud signals ---
-    r = check_fraud_signals(member_id, treatment_date, claimed_amount)
+    r = check_fraud_signals(member_id, treatment_date, claimed_amount, claims_history)
     findings.append(r)
     if r["result"] == "MANUAL_REVIEW":
         decision = _raise_decision(decision, "MANUAL_REVIEW")

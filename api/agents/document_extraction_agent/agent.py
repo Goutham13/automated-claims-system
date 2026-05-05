@@ -14,7 +14,6 @@ DocumentType = Literal[
     "PRESCRIPTION",
     "HOSPITAL_BILL",
     "LAB_REPORT",
-    "DIAGNOSTIC_REPORT",
     "PHARMACY_BILL",
     "DENTAL_REPORT",
     "DISCHARGE_SUMMARY",
@@ -167,7 +166,6 @@ class DocumentExtractionResult(BaseModel):
     prescription: PrescriptionFields | None = None
     hospital_bill: HospitalBillFields | None = None
     lab_report: LabReportFields | None = None
-    diagnostic_report: LabReportFields | None = None
     pharmacy_bill: PharmacyBillFields | None = None
     dental_report: DentalReportFields | None = None
     discharge_summary: DischargeSummaryFields | None = None
@@ -218,10 +216,6 @@ HOSPITAL_BILL:
 LAB_REPORT:
 - Extract lab details, sample/report metadata, patient details, test rows,
   pathologist details, remarks.
-- Critical fields: patient_name, report_date, test_results.
-
-DIAGNOSTIC_REPORT:
-- Extract same structure as LAB_REPORT.
 - Critical fields: patient_name, report_date, test_results.
 
 PHARMACY_BILL:
