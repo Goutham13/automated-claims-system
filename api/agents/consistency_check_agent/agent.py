@@ -55,12 +55,13 @@ class ConsistencyCheckInput(BaseModel):
         default=None,
         description="Claim-level treatment date in YYYY-MM-DD.",
     )
-    extracted_documents: list[DocumentConsistencySnapshot] = Field(
-        default=[],
+    extracted_documents: str = Field(
+        default="[]",
         description=(
-            "Structured snapshots derived from DocumentExtractionResult objects, "
-            "one per document. Each snapshot contains typed, pre-extracted fields — "
-            "do NOT re-parse or re-infer values from text."
+            "JSON-serialised list of DocumentConsistencySnapshot objects, one per document. "
+            "Each object has: file_id, file_name, document_type, patient_name, primary_date, "
+            "amount, diagnosis, provider_name, doctor_name. "
+            "Do NOT re-parse or re-infer values — only compare the pre-extracted fields."
         ),
     )
 
@@ -92,9 +93,9 @@ You are a cross-document consistency checker for health insurance claims.
 Input:
 - treatment_date: the date entered by the member when submitting the claim.
 - claimed_amount: the amount entered by the member.
-- extracted_documents: a list of DocumentConsistencySnapshot objects.
-  Each snapshot has typed, pre-extracted fields — do NOT re-derive or re-infer values.
-  Trust the fields as given; only compare them.
+- extracted_documents: a JSON string containing a list of DocumentConsistencySnapshot objects.
+  Parse the JSON to get the list. Each snapshot has typed, pre-extracted fields —
+  do NOT re-derive or re-infer values. Trust the fields as given; only compare them.
 
 Your job is to compare field values across documents and surface contradictions.
 Do not re-extract or guess — only use the values already present in the snapshots.

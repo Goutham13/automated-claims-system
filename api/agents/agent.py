@@ -151,7 +151,7 @@ CONSISTENCY_CHECK stage:
                      pharmacy_bill.pharmacy_name
     doctor_name    → first non-null of: prescription.doctor_name,
                      hospital_bill.referring_doctor_name, lab_report.referring_doctor_name
-- Pass these snapshots as `extracted_documents` to the consistency agent.
+- Serialise the list of snapshots as a JSON string and pass it as `extracted_documents` to the consistency agent.
 - If outcome == BLOCKED:
   - final_status = STOPPED_AT_CONSISTENCY
   - include member-facing corrective message and specific contradictions
