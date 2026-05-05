@@ -24,26 +24,38 @@ const CONTENT_TYPES = {
   '.txt': 'text/plain',
 }
 
-const { default: serverEntry } = await import('./dist/server/index.js')
-const fetchHandler = typeof serverEntry === 'function' ? serverEntry : serverEntry.fetch.bind(serverEntry)
+// The Cloudflare adapter build outputs dist/server/index.js which exports a fetch handler.
+// Both the default export (an object with .fetch) and a named fetch export are supported.
+const mod = await import('./dist/server/index.js')
+const serverEntry = mod.default ?? mod
+const fetchHandler = typeof serverEntry === 'function'
+  ? serverEntry
+  : serverEntry.fetch?.bind(serverEntry)
 
+if (!fetchHandler) {
+  console.error('Could not find fetch handler in dist/server/index.js. Exports:', Object.keys(mod))
+  process.exit(1)
+}
+
+// The Cloudflare worker wrangler.json uses assets.directory = "../client",
+// meaning dist/client/ is served at the root path (e.g. /assets/foo.js).
 async function tryServeStatic(pathname) {
-  // Strip /_build prefix → maps to dist/client/
-  const rel = pathname.startsWith('/_build/') ? pathname.slice(7) : pathname
   try {
-    const fullPath = join(DIST_CLIENT, rel)
+    const fullPath = join(DIST_CLIENT, pathname)
     const content = await readFile(fullPath)
-    return { content, type: CONTENT_TYPES[extname(rel)] || 'application/octet-stream' }
+    return { content, type: CONTENT_TYPES[extname(pathname)] || 'application/octet-stream' }
   } catch {
     return null
   }
 }
 
+const STATIC_RE = /\.(js|mjs|css|png|jpg|jpeg|svg|ico|woff2?|ttf|webp|gif|map)$/i
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
 
-  // Serve static assets directly
-  if (url.pathname.startsWith('/_build/') || url.pathname.match(/\.(js|mjs|css|png|jpg|svg|ico|woff2?|ttf)$/)) {
+  // Serve static files for asset-like paths before hitting the SSR handler
+  if (STATIC_RE.test(url.pathname)) {
     const file = await tryServeStatic(url.pathname)
     if (file) {
       res.writeHead(200, {
@@ -55,7 +67,7 @@ const server = createServer(async (req, res) => {
     }
   }
 
-  // Forward to TanStack Start SSR handler
+  // Forward to TanStack Start SSR handler (Web Fetch API)
   const proto = req.headers['x-forwarded-proto'] || 'http'
   const fullUrl = `${proto}://${req.headers.host || 'localhost'}${req.url}`
   const headers = new Headers()
