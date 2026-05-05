@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - "ui/**"
+  workflow_dispatch:
 
 env:
   PROJECT_ID: gen-lang-client-0834637095
   REGION: us-central1
   SERVICE: plum-claims-ui
+  REGISTRY: us-central1-docker.pkg.dev/gen-lang-client-0834637095/plum-claims
 
 jobs:
   deploy:
@@ -28,24 +30,24 @@ jobs:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker --quiet
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
       - name: Build and push image
         run: |
           docker build \
             --build-arg VITE_API_BASE_URL=${{ secrets.API_BASE_URL }} \
             -f ui/Dockerfile \
-            -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} \
-            -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latest \
+            -t ${{ env.REGISTRY }}/${{ env.SERVICE }}:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/${{ env.SERVICE }}:latest \
             ui
-          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
-          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.SERVICE }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.SERVICE }}:latest
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ env.SERVICE }} \
-            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} \
+            --image ${{ env.REGISTRY }}/${{ env.SERVICE }}:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
