@@ -1,0 +1,116 @@
+# Deploys both services to Cloud Run.
+#
+# Pre-requisites (run once before first deploy):
+#   gcloud services enable run.googleapis.com cloudbuild.googleapis.com secretmanager.googleapis.com
+#
+#   # Store DATABASE_URL in Secret Manager
+#   echo -n "postgresql://user:pass@host:5432/claims" | \
+#     gcloud secrets create DATABASE_URL --data-file=-
+#
+#   # Grant Cloud Run service account access to the secret
+#   PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+#   gcloud secrets add-iam-policy-binding DATABASE_URL \
+#     --member="serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
+#     --role="roles/secretmanager.secretAccessor"
+#
+# Trigger this build:
+#   gcloud builds submit . --config=cloudbuild.yaml --project=YOUR_PROJECT_ID
+#
+# Substitution variables:
+#   _REGION  — Cloud Run region (default: us-central1)
+
+steps:
+  # ── 1. Build API image ──────────────────────────────────────────────────────
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-api"
+    args:
+      - build
+      - -t
+      - gcr.io/$PROJECT_ID/plum-claims-api
+      - -f
+      - api/Dockerfile
+      - .
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "push-api"
+    waitFor: ["build-api"]
+    args: ["push", "gcr.io/$PROJECT_ID/plum-claims-api"]
+
+  # ── 2. Deploy API to Cloud Run ───────────────────────────────────────────────
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy-api"
+    waitFor: ["push-api"]
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - plum-claims-api
+      - --image=gcr.io/$PROJECT_ID/plum-claims-api
+      - --platform=managed
+      - --region=${_REGION}
+      - --allow-unauthenticated
+      - --port=8000
+      - --memory=2Gi
+      - --cpu=2
+      - --max-instances=10
+      - --set-env-vars=GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global
+      - --set-secrets=DATABASE_URL=DATABASE_URL:latest
+
+  # ── 3. Capture API URL and build UI with it baked in ────────────────────────
+  # VITE_API_BASE_URL is a build-time constant in the UI bundle, so the API
+  # must be deployed first.
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "get-api-url"
+    waitFor: ["deploy-api"]
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud run services describe plum-claims-api \
+          --region=${_REGION} \
+          --format='value(status.url)' > /workspace/api_url.txt
+        echo "API URL: $(cat /workspace/api_url.txt)"
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-ui"
+    waitFor: ["get-api-url"]
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        API_URL=$(cat /workspace/api_url.txt)
+        docker build \
+          --build-arg VITE_API_BASE_URL=$${API_URL} \
+          -t gcr.io/$PROJECT_ID/plum-claims-ui \
+          -f ui/Dockerfile \
+          ui
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "push-ui"
+    waitFor: ["build-ui"]
+    args: ["push", "gcr.io/$PROJECT_ID/plum-claims-ui"]
+
+  # ── 4. Deploy UI to Cloud Run ────────────────────────────────────────────────
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy-ui"
+    waitFor: ["push-ui"]
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - plum-claims-ui
+      - --image=gcr.io/$PROJECT_ID/plum-claims-ui
+      - --platform=managed
+      - --region=${_REGION}
+      - --allow-unauthenticated
+      - --port=8080
+      - --memory=512Mi
+      - --cpu=1
+      - --max-instances=5
+      - --set-env-vars=NODE_ENV=production
+
+substitutions:
+  _REGION: us-central1
+
+options:
+  logging: CLOUD_LOGGING_ONLY

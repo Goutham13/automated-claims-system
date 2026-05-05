@@ -1,0 +1,22 @@
+[project]
+name = "plum-claims-api"
+version = "0.1.0"
+description = "Claims processing API using Google ADK"
+requires-python = ">=3.11"
+dependencies = [
+  "google-adk",
+  "pydantic>=2.7,<3",
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "python-dotenv>=1.0",
+  "python-multipart>=0.0.9",
+  "asyncpg>=0.29",
+  "psycopg2-binary>=2.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agents"]

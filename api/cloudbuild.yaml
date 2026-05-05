@@ -1,0 +1,23 @@
+steps:
+- name: "gcr.io/cloud-builders/docker"
+  args: ["build", "-t", "gcr.io/$PROJECT_ID/plum-claims-api", "-f", "api/Dockerfile", "."]
+- name: "gcr.io/cloud-builders/docker"
+  args: ["push", "gcr.io/$PROJECT_ID/plum-claims-api"]
+- name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  entrypoint: gcloud
+  args:
+  - run
+  - deploy
+  - plum-claims-api
+  - --image=gcr.io/$PROJECT_ID/plum-claims-api
+  - --platform=managed
+  - --region=us-central1
+  - --allow-unauthenticated
+  - --port=8000
+  - --memory=2Gi
+  - --cpu=2
+  - --max-instances=10
+  - --set-env-vars=GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global
+  - --set-secrets=DATABASE_URL=DATABASE_URL:latest
+options:
+  logging: CLOUD_LOGGING_ONLY

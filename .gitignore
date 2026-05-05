@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# ADK session state
+**/.adk/session.db
+**/.adk/
+
+# Node
+node_modules/
+.output/
+dist/
+
+# Build artifacts
+*.lock
+!bun.lockb
+!uv.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
