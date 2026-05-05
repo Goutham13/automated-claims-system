@@ -12,8 +12,9 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN bun run build
 
-# Print everything produced by the build so we can find the server entry
-RUN echo "===BUILD OUTPUT===" && find /app -not -path "*/node_modules/*" -name "*.mjs" -o -name "*.js" 2>/dev/null | grep -i "server\|index" | head -30
+# Show full build output structure
+RUN echo "===DIRS===" && find /app -maxdepth 4 -not -path "*/node_modules/*" -type d && \
+    echo "===FILES===" && find /app -maxdepth 5 -not -path "*/node_modules/*" -type f | head -60
 
 # ---- runner ----
 FROM node:20-slim AS runner
@@ -27,4 +28,4 @@ ENV NODE_ENV=production
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "echo 'files:' && find /app -not -path '*/node_modules/*' -name '*.mjs' | head -20 && exit 1"]
+CMD ["sh", "-c", "echo '===DIRS===' && find /app -maxdepth 4 -not -path '*/node_modules/*' -type d && exit 1"]
