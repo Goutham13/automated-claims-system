@@ -11,6 +11,7 @@ env:
   PROJECT_ID: gen-lang-client-0834637095
   REGION: us-central1
   SERVICE: plum-claims-api
+  CLOUDSQL_INSTANCE: gen-lang-client-0834637095:us-central1:claims-db
 
 jobs:
   deploy:
@@ -54,7 +55,8 @@ jobs:
             --cpu 2 \
             --max-instances 10 \
             --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GOOGLE_CLOUD_LOCATION=global \
-            --set-secrets DATABASE_URL=DATABASE_URL:latest
+            --set-secrets DATABASE_URL=DATABASE_URL:latest \
+            --add-cloudsql-instances ${{ env.CLOUDSQL_INSTANCE }}
 
       - name: Print service URL
         run: |
