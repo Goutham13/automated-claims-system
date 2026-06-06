@@ -14,7 +14,6 @@ from .document_requirements_agent.agent import document_requirements_agent
 from .document_extraction_agent.agent import document_extraction_agent
 from .consistency_check_agent.agent import consistency_check_agent
 from .policy_decision_agent.agent import run_policy_decision, PolicyDecision
-from tools.extracted_text_store import save_extracted_document_text
 
 MODEL = "gemini-2.5-pro"
 
@@ -59,33 +58,23 @@ Global rules:
 - Always return valid JSON matching the output schema.
 
 Strict execution order:
-- Firstly extract text from the pdfs/images and save using `save_extracted_document_text` tool.
-- Always run DOCUMENT_CLASSIFICATION second (per-file classification using extracted text seperate for each file).
+- DOCUMENT_CLASSIFICATION runs first. Each uploaded file already includes a
+  `document_text` field that was extracted upstream by a dedicated OCR pre-stage.
+  Use that text directly — do NOT attempt to read images or PDFs yourself
+  (you will not receive any; you only receive text).
 - Only run DOCUMENT_REQUIREMENTS next if ALL document_gate_agent results have `gate_outcome == "PASS"`. If any result has `gate_outcome == "PENDING_REUPLOAD"`, stop immediately and request reupload — do NOT proceed regardless of whether the type could be guessed.
 - Only run DOCUMENT_EXTRACTION if requirements outcome allows continuing.
 - Only run CONSISTENCY_CHECK if extraction completed.
 - Only run POLICY_DECISION if consistency check allows proceeding (outcome is PASS or MANUAL_REVIEW_RECOMMENDED).
 
-Stage contracts:
+Input format:
+- The intake payload contains a `documents` list. Each entry has:
+  file_id, file_name, mime_type, and `document_text` (already-extracted OCR text).
+- If a file's `document_text` is empty or sparse, pass it as-is to
+  document_gate_agent — the gate decides whether there is enough signal to classify.
+  Never invent or fill in missing text.
 
-TEXT_EXTRACTION stage:
-- For each uploaded PDF/image, extract best-effort plain text yourself (OCR-style) and pass it
-  as `document_text` to document_gate_agent.
-- After extracting `document_text` for a file, call `save_extracted_document_text` to persist it
-  for reuse by later stages and future invocations.
-- Critical: your text extraction must be strictly non-hallucinatory.
-  - Do NOT guess missing words.
-  - Do NOT use context from other uploaded documents to fill gaps in this document.
-  - Do NOT "clean up" blurry text by inventing likely values.
-  - If a region is unreadable, omit it and keep `document_text` partial/empty.
-  - If you are unsure about a token/line, either omit it or include a placeholder like
-    `[UNREADABLE]`  without adding guessed content.
-- Keep extraction file-isolated:
-  - Treat each file independently.
-  - Never merge information across files during text extraction.
-- If a file produces very sparse or empty text, pass it as-is — do not pad or guess.
-  The document_gate_agent will evaluate whether the text contains sufficient signals to classify.
-- PENDING_MEMBER_ACTION if no file yields enough text for any valid classification.
+Stage contracts:
 
 DOCUMENT_CLASSIFICATION stage:
 - Classify each uploaded file separately by calling document_gate_agent once per file.
@@ -225,7 +214,7 @@ claims_pipeline_agent = LlmAgent(
         top_p=1.0,
         top_k=1.0,
     ),
-    tools=[save_extracted_document_text, gate_tool, requirements_tool, extraction_tool, consistency_tool, run_policy_decision],
+    tools=[gate_tool, requirements_tool, extraction_tool, consistency_tool, run_policy_decision],
     output_schema=PipelineTrace,
     output_key="pipeline_trace",
 )

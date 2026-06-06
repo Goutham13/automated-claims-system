@@ -24,6 +24,8 @@ from google.adk.sessions import InMemorySessionService
 from google.genai.types import Content, Part
 
 from agents.agent import root_agent
+from ocr.service import OcrBatchResult, extract_text_for_documents
+import asyncio
 import db
 
 load_dotenv()
@@ -225,6 +227,46 @@ def _lookup_member(member_id: str) -> dict[str, Any] | None:
     return None
 
 
+OCR_UNAVAILABLE_STATUS = "MANUAL_REVIEW"
+
+
+def build_agent_content(metadata: dict[str, Any], batch: OcrBatchResult) -> Content:
+    """Build a TEXT-ONLY Content for the agent: metadata + per-file OCR text.
+
+    Critical privacy invariant: this function must never attach image bytes.
+    """
+    text_by_id = {r.file_id: r.document_text for r in batch.results}
+    for d in metadata.get("documents", []):
+        d["document_text"] = text_by_id.get(d["file_id"], "")
+
+    parts: list[Part] = [
+        Part.from_text(text="Process this claim intake request:\n" + json.dumps(metadata))
+    ]
+    return Content(role="user", parts=parts)
+
+
+def ocr_step_event(claim_id: str, user_id: str, session_id: str, batch: OcrBatchResult) -> dict:
+    """Synthetic SSE event so the UI shows a TEXT_EXTRACTION step (UI heuristic:
+    any state_delta key with a `status` field is rendered as a trace step)."""
+    ok = [r for r in batch.results if r.ok]
+    failed = [r for r in batch.results if not r.ok]
+    findings = [f"{r.file_name}: {len(r.document_text)} chars" for r in ok]
+    findings += [f"{r.file_name}: unreadable" for r in failed]
+    return {
+        "type": "ocr_status",
+        "author": "ocr_prestage",
+        "actions": {"state_delta": {"TEXT_EXTRACTION": {
+            "status": "COMPLETED",
+            "summary": f"Extracted text from {len(ok)}/{len(batch.results)} document(s) via self-hosted OCR.",
+            "key_findings": findings[:5],
+        }}},
+        "claim_id": claim_id,
+        "user_id": user_id,
+        "session_id": session_id,
+        "created_at": _now_iso(),
+    }
+
+
 @app.post("/claims")
 async def create_claim(
     member_id: str = Form(...),
@@ -338,12 +380,32 @@ async def claim_events(claim_id: str):
             ],
         }
 
-        parts: list[Part] = [Part.from_text(text="Process this claim intake request:\n" + json.dumps(metadata))]
-        for d in documents:
-            parts.append(Part.from_bytes(data=d["bytes"], mime_type=d["mime_type"]))
+        # OCR pre-stage: extract text from images/PDFs via the self-hosted VLM.
+        # Runs off the event loop so a slow/blocking VLM call never stalls the app.
+        batch = await asyncio.to_thread(extract_text_for_documents, documents)
 
-        content = Content(role="user", parts=parts)
-        logger.info("[SSE] claim_id=%s user_id=%s session_id=%s", claim_id, user_id, session_id)
+        # Stream a synthetic TEXT_EXTRACTION step so the UI timeline is unchanged.
+        yield f"data: {json.dumps(ocr_step_event(claim_id, user_id, session_id, batch))}\n\n"
+
+        # If the OCR service was entirely unreachable, this is an outage, not a
+        # member problem: route to manual review instead of asking for re-uploads.
+        if batch.service_unavailable:
+            await db.update_claim_final(claim_id, OCR_UNAVAILABLE_STATUS, None)
+            outage_event = {
+                "type": "error",
+                "message": "We are processing your claim. A specialist will review it shortly.",
+                "ops_detail": "OCR service unavailable — claim queued for manual review.",
+                "final_status": OCR_UNAVAILABLE_STATUS,
+                "claim_id": claim_id,
+                "user_id": user_id,
+                "session_id": session_id,
+                "created_at": _now_iso(),
+            }
+            yield f"data: {json.dumps(outage_event)}\n\n"
+            return
+
+        content = build_agent_content(metadata, batch)
+        logger.info("[SSE] claim_id=%s user_id=%s session_id=%s docs=%d", claim_id, user_id, session_id, len(documents))
 
         try:
             async for event in runner.run_async(
