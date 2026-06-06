@@ -1,4 +1,1 @@
-from .agent import document_requirements_agent
-
-__all__ = ["document_requirements_agent"]
-
+"""Document requirements stage — prompt and schemas live in .agent."""

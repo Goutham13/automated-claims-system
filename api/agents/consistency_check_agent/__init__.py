@@ -1,3 +1,1 @@
-from .agent import consistency_check_agent
-
-__all__ = ["consistency_check_agent"]
+"""Consistency check stage — prompt and schemas live in .agent."""

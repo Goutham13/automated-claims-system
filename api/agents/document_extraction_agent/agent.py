@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Literal
 
-from google.adk.agents import LlmAgent
-from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
 
 MODEL = "gemini-3-flash-preview"
@@ -236,21 +234,3 @@ Output constraints:
 - Populate only the typed section matching `document_type`; keep unrelated sections null.
 - Always provide `ops_message` and `key_findings`.
 """
-
-
-document_extraction_agent = LlmAgent(
-    model=MODEL,
-    name="document_extraction_agent",
-    description=(
-        "Extracts structured claim fields from text content for a single classified document."
-    ),
-    instruction=DOCUMENT_EXTRACTION_PROMPT,
-    generate_content_config=GenerateContentConfig(
-        temperature=0.1,
-        top_p=1.0,
-        top_k=1.0,
-    ),
-    input_schema=ExtractionInputDocument,
-    output_schema=DocumentExtractionResult,
-    output_key="document_extraction_result",
-)

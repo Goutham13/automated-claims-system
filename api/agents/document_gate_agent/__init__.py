@@ -1,3 +1,1 @@
-from .agent import document_gate_agent
-
-__all__ = ["document_gate_agent"]
+"""Document gate (classification) stage — prompt and schemas live in .agent."""

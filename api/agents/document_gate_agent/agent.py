@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Literal
 
-from google.adk.agents import LlmAgent
-from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
 
 MODEL = "gemini-2.5-flash"
@@ -132,22 +130,3 @@ Missing required signals:
 ops_message when gate_outcome = PENDING_REUPLOAD:
 - Name the specific signals that are missing so the pipeline trace is actionable.
 """
-
-
-document_gate_agent = LlmAgent(
-    model=MODEL,
-    name="document_gate_agent",
-    description=(
-        "Classifies a single uploaded claim document into a document type "
-        "and decides whether the extracted text contains sufficient signals to proceed."
-    ),
-    instruction=DOCUMENT_GATE_PROMPT,
-    generate_content_config=GenerateContentConfig(
-        temperature=0.1,
-        top_p=1.0,
-        top_k=1.0,
-    ),
-    input_schema=UploadedDocumentInput,
-    output_schema=DocumentClassificationResult,
-    output_key="document_gate_result",
-)

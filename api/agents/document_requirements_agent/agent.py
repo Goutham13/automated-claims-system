@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Literal
 
-from google.adk.agents import LlmAgent
-from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
 
 MODEL = "gemini-3-flash-preview"
@@ -100,19 +98,3 @@ ops_message requirements:
 
 Return ONLY valid JSON matching the output schema.
 """
-
-
-document_requirements_agent = LlmAgent(
-    model=MODEL,
-    name="document_requirements_agent",
-    description="Validates that required claim documents are present for the claim category.",
-    instruction=DOCUMENT_REQUIREMENTS_PROMPT,
-    generate_content_config=GenerateContentConfig(
-        temperature=0.1,
-        top_p=1.0,
-        top_k=1.0,
-    ),
-    input_schema=DocumentRequirementsInput,
-    output_schema=DocumentRequirementsResult,
-    output_key="document_requirements_result",
-)
