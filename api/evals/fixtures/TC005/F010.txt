@@ -1,0 +1,19 @@
+SHREE CARE CLINIC
+C.G. Road, Ahmedabad - 380009
+GSTIN: 24ABCDE1234F1Z5
+
+BILL / RECEIPT
+Bill No: SCC/2024/22115          Date: 2024-10-15
+
+Patient Name: Vikram Joshi
+Age/Gender: 45 / Male
+Referring Doctor: Dr. Sunil Mehta
+
+DESCRIPTION                        AMOUNT
+Diabetes Consultation Fee           1200.00
+Blood Sugar Profile                 900.00
+HbA1c Test                          900.00
+
+Subtotal: 3000.00
+GST: 0.00
+Total Amount: 3000.00

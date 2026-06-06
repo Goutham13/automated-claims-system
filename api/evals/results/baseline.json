@@ -1,0 +1,247 @@
+{
+  "model": "gemini-3-flash-preview",
+  "created_at": "2026-06-06T20:10:02.482037+00:00",
+  "dimensions": {
+    "classification": {
+      "score": 0.9583333333333334,
+      "details": {
+        "total": 24,
+        "correct": 23,
+        "accuracy": 0.9583333333333334,
+        "gate_false_negatives": 1,
+        "confusion": {
+          "PRESCRIPTION": {
+            "PRESCRIPTION": 12
+          },
+          "PHARMACY_BILL": {
+            "UNKNOWN": 1
+          },
+          "HOSPITAL_BILL": {
+            "HOSPITAL_BILL": 10
+          },
+          "LAB_REPORT": {
+            "LAB_REPORT": 1
+          }
+        },
+        "rows": [
+          {
+            "case_id": "TC001",
+            "file_id": "F001",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC001",
+            "file_id": "F002",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC002",
+            "file_id": "F003",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC002",
+            "file_id": "F004",
+            "actual": "PHARMACY_BILL",
+            "predicted": "UNKNOWN",
+            "correct": false,
+            "confidence": 0.0,
+            "gate_outcome": "PENDING_REUPLOAD"
+          },
+          {
+            "case_id": "TC003",
+            "file_id": "F005",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC003",
+            "file_id": "F006",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC004",
+            "file_id": "F007",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC004",
+            "file_id": "F008",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC005",
+            "file_id": "F009",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC005",
+            "file_id": "F010",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC006",
+            "file_id": "F011",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC007",
+            "file_id": "F012",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.85,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC007",
+            "file_id": "F013",
+            "actual": "LAB_REPORT",
+            "predicted": "LAB_REPORT",
+            "correct": true,
+            "confidence": 0.95,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC007",
+            "file_id": "F014",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC008",
+            "file_id": "F015",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC008",
+            "file_id": "F016",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC009",
+            "file_id": "F017",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC009",
+            "file_id": "F018",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC010",
+            "file_id": "F019",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC010",
+            "file_id": "F020",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC011",
+            "file_id": "F021",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.9,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC011",
+            "file_id": "F022",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.98,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC012",
+            "file_id": "F023",
+            "actual": "PRESCRIPTION",
+            "predicted": "PRESCRIPTION",
+            "correct": true,
+            "confidence": 0.85,
+            "gate_outcome": "PASS"
+          },
+          {
+            "case_id": "TC012",
+            "file_id": "F024",
+            "actual": "HOSPITAL_BILL",
+            "predicted": "HOSPITAL_BILL",
+            "correct": true,
+            "confidence": 0.95,
+            "gate_outcome": "PASS"
+          }
+        ]
+      }
+    }
+  }
+}

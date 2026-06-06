@@ -1,0 +1,22 @@
+SMILE DENTAL CLINIC
+Banjara Hills, Hyderabad - 500034
+GSTIN: 36ABCDE1234F1Z7
+
+BILL / RECEIPT
+Bill No: SDC/2024/10981          Date: 2024-10-15
+
+Patient Name: Priya Singh
+Age/Gender: 34 / Female
+Treating Dentist: Dr. R. Menon
+
+DESCRIPTION                        AMOUNT
+Root Canal Treatment               8000.00
+Teeth Whitening                     4000.00
+
+Subtotal: 12000.00
+GST: 0.00
+Total Amount: 12000.00
+
+Payment Mode: UPI
+
+Received by: Cashier A. Kumar

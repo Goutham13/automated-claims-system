@@ -1,0 +1,4 @@
+# Ignore ad-hoc timestamped runs; keep the committed baseline.
+*
+!.gitignore
+!baseline.json

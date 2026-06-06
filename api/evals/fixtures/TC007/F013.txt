@@ -1,0 +1,13 @@
+PRECISION DIAGNOSTICS PVT LTD
+NABL Accredited Lab | Lab ID: AP-NABL-2211
+Banjara Hills, Hyderabad
+
+Patient: Suresh Patil
+Age/Sex: 48 / Male
+Ref Doctor: Dr. Venkat Rao
+Sample Date: 2024-11-02 Report Date: 2024-11-02
+Sample ID: PD-2024-77123
+
+TEST NAME RESULT
+MRI Lumbar Spine Completed
+Impression: L4-L5 disc protrusion with nerve root compression
