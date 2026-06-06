@@ -1,0 +1,18 @@
+METRO CARE CLINIC
+Connaught Place, New Delhi - 110001
+GSTIN: 07ABCDE1234F1Z9
+
+BILL / RECEIPT
+Bill No: MCC/2024/55220          Date: 2024-10-20
+
+Patient Name: Amit Verma
+Age/Gender: 35 / Male
+Referring Doctor: Dr. R. Gupta
+
+DESCRIPTION                        AMOUNT
+Consultation Fee                    2000.00
+Medicines                           5500.00
+
+Subtotal: 7500.00
+GST: 0.00
+Total Amount: 7500.00

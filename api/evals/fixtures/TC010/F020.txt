@@ -1,0 +1,19 @@
+APOLLO HOSPITALS
+Greams Road, Chennai - 600006
+GSTIN: 33ABCDE1234F1Z2
+
+BILL / RECEIPT
+Bill No: APH/2024/91003
+Date: 2024-11-03
+
+Patient Name: Deepak Shah
+Age/Gender: 41 / Male
+Referring Doctor: Dr. S. Iyer
+
+DESCRIPTION AMOUNT
+Consultation Fee 1500.00
+Medicines 3000.00
+
+Subtotal: 4500.00
+GST: 0.00
+Total Amount: 4500.00

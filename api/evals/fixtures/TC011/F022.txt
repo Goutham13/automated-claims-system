@@ -1,0 +1,17 @@
+AYUR WELLNESS CENTRE
+MG Road, Kochi - 682016
+GSTIN: 32ABCDE1234F1Z3
+
+BILL / RECEIPT
+Bill No: AWC/2024/11828          Date: 2024-10-28
+
+Patient Name: Kavita Nair
+Treating Practitioner: Vaidya T. Krishnan
+
+DESCRIPTION                        AMOUNT
+Panchakarma Therapy (5 sessions)   3000.00
+Consultation                       1000.00
+
+Subtotal: 4000.00
+GST: 0.00
+Total Amount: 4000.00

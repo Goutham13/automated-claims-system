@@ -1,0 +1,16 @@
+NEUROCARE CLINIC
+Andheri East, Mumbai - 400069
+GSTIN: 27ABCDE1234F1Z6
+
+BILL / RECEIPT
+Bill No: NCL/2024/33018          Date: 2024-10-30
+
+Patient Name: Ravi Menon
+Referring Doctor: Dr. S. Khan
+
+DESCRIPTION                        AMOUNT
+Consultation + Procedures         4800.00
+
+Subtotal: 4800.00
+GST: 0.00
+Total Amount: 4800.00
