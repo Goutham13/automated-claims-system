@@ -17,14 +17,8 @@ from pydantic import BaseModel as PydanticBaseModel
 
 from auth import authenticate, create_token, verify_token
 
-from google.adk.agents.run_config import RunConfig, StreamingMode
-from google.adk.runners import Runner
-from google.adk.artifacts import InMemoryArtifactService
-from google.adk.sessions import InMemorySessionService
-from google.genai.types import Content, Part
-
-from agents.agent import root_agent
 from ocr.service import OcrBatchResult, extract_text_for_documents
+from pipeline.orchestrator import run_claim_pipeline
 import asyncio
 import db
 
@@ -92,9 +86,6 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
 )
 
-session_service = InMemorySessionService()
-artifact_service = InMemoryArtifactService()
-
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -135,85 +126,6 @@ async def get_all_claims(_payload: dict = Depends(_require_staff)):
     return {"claims": claims}
 
 
-def _is_partial_tool_only_event(event_data: dict[str, Any]) -> bool:
-    """Return True for partial=True streaming events that carry only function_call parts.
-
-    ADK emits these as mid-generation chunks before the committed (partial=False) version
-    of the same tool call arrives. The committed event is authoritative; the streaming
-    chunk adds no new information and should not be forwarded to the UI.
-    """
-    if not event_data.get("partial"):
-        return False
-    parts = (event_data.get("content") or {}).get("parts") or []
-    if not parts:
-        return False
-    return all(
-        p.get("function_call") is not None or p.get("function_response") is not None
-        for p in parts
-    )
-
-
-def _flatten_pipeline_trace_state_delta(state_delta: dict[str, Any]) -> dict[str, Any]:
-    """Convert {"pipeline_trace": {...}} to a UI-friendly flat state_delta."""
-    flattened: dict[str, Any] = dict(state_delta)
-    trace = state_delta.get("pipeline_trace")
-    if not isinstance(trace, dict):
-        return flattened
-
-    # Preserve any other state updates produced during the same invocation (e.g. tools).
-    flattened = {k: v for k, v in flattened.items() if k != "pipeline_trace"}
-    flattened["final_member_message"] = trace.get("final_member_message")
-    flattened["final_ops_summary"] = trace.get("final_ops_summary")
-    flattened["final_status"] = trace.get("final_status")
-    flattened["blockers"] = trace.get("blockers", [])
-    flattened["warnings"] = trace.get("warnings", [])
-    flattened["handoff_payload"] = trace.get("handoff_payload", {})
-
-    # Forward policy_decision so the UI can render the decision card.
-    if trace.get("policy_decision") is not None:
-        flattened["policy_decision"] = trace["policy_decision"]
-
-    steps = trace.get("steps", [])
-    if isinstance(steps, list):
-        for step in steps:
-            if not isinstance(step, dict):
-                continue
-            step_name = step.get("step_name")
-            if not isinstance(step_name, str) or not step_name:
-                continue
-            flattened[step_name] = {
-                "status": step.get("status"),
-                "summary": step.get("summary"),
-                "key_findings": step.get("key_findings", []),
-                "ops_message": step.get("ops_message"),
-                "member_message": step.get("member_message"),
-            }
-
-    return flattened
-
-
-async def _start_session(*, user_id: str, session_id: Optional[str]) -> tuple[Runner, Any, RunConfig]:
-    runner = Runner(
-        app_name=APP_NAME,
-        agent=root_agent,
-        session_service=session_service,
-        artifact_service=artifact_service,
-    )
-
-    session = None
-    if session_id:
-        session = await runner.session_service.get_session(app_name=APP_NAME, user_id=user_id, session_id=session_id)
-    if session is None:
-        session = await runner.session_service.create_session(app_name=APP_NAME, user_id=user_id, session_id=session_id)
-
-    run_config = RunConfig(
-        streaming_mode=StreamingMode.SSE,
-        response_modalities=["TEXT"],
-        max_llm_calls=500,
-    )
-    return runner, session, run_config
-
-
 @app.get("/")
 async def root() -> dict[str, str]:
     return {"status": "ok", "service": "claims-flow-api"}
@@ -230,19 +142,38 @@ def _lookup_member(member_id: str) -> dict[str, Any] | None:
 OCR_UNAVAILABLE_STATUS = "MANUAL_REVIEW"
 
 
-def build_agent_content(metadata: dict[str, Any], batch: OcrBatchResult) -> Content:
-    """Build a TEXT-ONLY Content for the agent: metadata + per-file OCR text.
+def build_documents_with_text(
+    documents: list[dict[str, Any]], batch: OcrBatchResult
+) -> list[dict[str, Any]]:
+    """Build the TEXT-ONLY per-document payload for the pipeline.
 
-    Critical privacy invariant: this function must never attach image bytes.
+    Privacy invariant: the returned items carry only file_id/file_name/document_text —
+    never image bytes. Image bytes go only to the self-hosted OCR service.
     """
     text_by_id = {r.file_id: r.document_text for r in batch.results}
-    for d in metadata.get("documents", []):
-        d["document_text"] = text_by_id.get(d["file_id"], "")
-
-    parts: list[Part] = [
-        Part.from_text(text="Process this claim intake request:\n" + json.dumps(metadata))
+    return [
+        {
+            "file_id": d["file_id"],
+            "file_name": d["file_name"],
+            "document_text": text_by_id.get(d["file_id"], ""),
+        }
+        for d in documents
     ]
-    return Content(role="user", parts=parts)
+
+
+def pipeline_event_to_sse(
+    event: dict[str, Any], claim_id: str, user_id: str, session_id: str
+) -> dict[str, Any]:
+    """Wrap an orchestrator event in the SSE envelope the UI expects."""
+    return {
+        "type": event.get("type", "stage"),
+        "author": "claims_pipeline_agent",
+        "actions": {"state_delta": event.get("state_delta", {})},
+        "claim_id": claim_id,
+        "user_id": user_id,
+        "session_id": session_id,
+        "created_at": _now_iso(),
+    }
 
 
 def ocr_step_event(claim_id: str, user_id: str, session_id: str, batch: OcrBatchResult) -> dict:
@@ -369,17 +300,6 @@ async def claim_events(claim_id: str):
         }
         documents = claim["documents"]
 
-        runner, session, run_config = await _start_session(user_id=user_id, session_id=session_id)
-
-        metadata = {
-            "claim_id": claim_id,
-            **claim_input,
-            "documents": [
-                {"file_id": d["file_id"], "file_name": d["file_name"], "mime_type": d["mime_type"]}
-                for d in documents
-            ],
-        }
-
         # OCR pre-stage: extract text from images/PDFs via the self-hosted VLM.
         # Runs off the event loop so a slow/blocking VLM call never stalls the app.
         batch = await asyncio.to_thread(extract_text_for_documents, documents)
@@ -404,43 +324,28 @@ async def claim_events(claim_id: str):
             yield f"data: {json.dumps(outage_event)}\n\n"
             return
 
-        content = build_agent_content(metadata, batch)
-        logger.info("[SSE] claim_id=%s user_id=%s session_id=%s docs=%d", claim_id, user_id, session_id, len(documents))
+        # Build the TEXT-ONLY pipeline input (no image bytes ever reach the LLM stages).
+        documents_with_text = build_documents_with_text(documents, batch)
+        claim_pipeline_input = {
+            **claim_input,
+            "claim_id": claim_id,
+            "claims_history": claim.get("claims_history", []),
+        }
+        logger.info("[SSE] claim_id=%s docs=%d", claim_id, len(documents))
 
         try:
-            async for event in runner.run_async(
-                user_id=session.user_id,
-                session_id=session.id,
-                new_message=content,
-                run_config=run_config,
-            ):
-                event_data = json.loads(event.model_dump_json())
-                event_data["is_final_response"] = event.is_final_response()
-                event_data["created_at"] = _now_iso()
-                event_data["user_id"] = session.user_id
-                event_data["session_id"] = session.id
-                event_data["claim_id"] = claim_id
-
-                if _is_partial_tool_only_event(event_data):
-                    continue
-
-                state_delta = event_data.get("actions", {}).get("state_delta")
-                if isinstance(state_delta, dict) and state_delta:
-                    event_data.setdefault("actions", {})
-                    event_data["actions"]["state_delta"] = _flatten_pipeline_trace_state_delta(state_delta)
-
-                yield f"data: {json.dumps(event_data)}\n\n"
+            final_trace = None
+            async for ev in run_claim_pipeline(claim_pipeline_input, documents_with_text):
+                sse = pipeline_event_to_sse(ev, claim_id, user_id, session_id)
+                yield f"data: {json.dumps(sse)}\n\n"
+                if ev.get("type") == "final":
+                    final_trace = ev.get("trace")
 
             try:
-                session_state = await runner.session_service.get_session(
-                    app_name=APP_NAME, user_id=user_id, session_id=session_id
-                )
-                if session_state:
-                    trace = session_state.state.get("pipeline_trace") or {}
-                    final_status = trace.get("final_status") if isinstance(trace, dict) else None
-                    await db.update_claim_final(claim_id, final_status, trace if isinstance(trace, dict) else None)
-                    if final_status in ("APPROVED", "PARTIAL"):
-                        await db.db_mark_claim_approved(claim_id)
+                final_status = (final_trace or {}).get("final_status")
+                await db.update_claim_final(claim_id, final_status, final_trace)
+                if final_status in ("APPROVED", "PARTIAL"):
+                    await db.db_mark_claim_approved(claim_id)
             except Exception as wb_exc:
                 logger.warning("Write-back failed for claim %s: %s", claim_id, wb_exc)
 
