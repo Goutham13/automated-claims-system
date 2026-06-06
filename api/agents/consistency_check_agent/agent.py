@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Literal
 
-from google.adk.agents import LlmAgent
-from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
 
 MODEL = "gemini-3-flash-preview"
@@ -140,22 +138,3 @@ Output requirements:
 - key_findings: concise bullets of what was compared and what was found.
 - issues: one entry per distinct problem, with evidence as concrete value pairs.
 """
-
-
-consistency_check_agent = LlmAgent(
-    model=MODEL,
-    name="consistency_check_agent",
-    description=(
-        "Validates cross-document consistency for identity, dates, amounts, and providers "
-        "using structured extraction snapshots; returns BLOCKED/MANUAL_REVIEW_RECOMMENDED/PASS."
-    ),
-    instruction=CONSISTENCY_CHECK_PROMPT,
-    generate_content_config=GenerateContentConfig(
-        temperature=0.1,
-        top_p=1.0,
-        top_k=1.0,
-    ),
-    input_schema=ConsistencyCheckInput,
-    output_schema=ConsistencyCheckResult,
-    output_key="consistency_check_result",
-)
