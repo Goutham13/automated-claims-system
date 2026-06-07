@@ -104,6 +104,35 @@ Extraction latency is also ~3× slower locally (large nested JSON output).
 
 (`gemini` remains the default backend; the self-hosted candidate is opt-in via `PIPELINE_BACKEND=ollama`.)
 
+## 4-candidate comparison vs the gemini-2.5-pro golden set (fair extraction)
+
+Reference = cached `gemini-2.5-pro` golden set (`evals/reference/`, captured once via
+`capture_reference`). Classification/requirements scored vs **truth**; extraction/consistency are
+**agreement vs the golden set**. Extraction uses **type-aware** matching (`field_compare`): dates,
+numbers, case, and list order/normalization no longer count as mismatches.
+
+| Candidate | Classif (truth) | Requirements | Extraction all-field (exact) | Extraction critical | Consistency | Ext. latency |
+|---|---|---|---|---|---|---|
+| gemini-3-flash | 95.8% | 100% | 97.5% (90.3%) | 100% | 91.7% | 6.9 s |
+| qwen2.5:7b-instruct | 91.7% | 91.7% | 62.8% (56.4%) | 79.2% | 100% | 22.5 s |
+| qwen2.5:14b | 87.5% | 100% | 70.6% (67.5%) | 87.5% | 100% | 54 s |
+| llama3.1:8b | 95.8% | 8.3% | 41.4% (38.3%) | 51.4% | 8.3% | 35 s |
+| _ref: gemini-2.5-pro_ | 91.7% | 100% | — | — | — | — |
+
+**Findings:**
+- **gemini-3-flash ≈ pro** on all stages (extraction 97.5% / critical 100%) — the strong, cheap
+  option, but external API.
+- **Self-hosted extraction gap is real but narrower than naive exact-match implied** (~58%).
+  `qwen2.5:14b` reaches **87.5% critical-field** agreement (7b: 79.2%) — a bigger model helps the
+  hard stage — but classification dips to 87.5% and extraction is **~54 s/doc** on 16 GB.
+- **`llama3.1:8b` is unsuitable** for the structured stages: requirements & consistency ≈8.3%
+  (fails to emit valid JSON reliably), despite strong classification.
+- Pro itself is only 91.7% on classification (flash/llama beat it vs truth).
+
+**Recommendation:** among self-hosted, `qwen2.5:14b` is most accurate on the hard stages but
+latency-heavy; `qwen2.5:7b` is the balanced choice; `llama3.1:8b` is out. Extraction is the residual
+gap vs Gemini. Default backend stays `gemini`.
+
 ## Deferred
 
 Extraction field-scoring & consistency (need authored labels), end-to-end decision/amount
