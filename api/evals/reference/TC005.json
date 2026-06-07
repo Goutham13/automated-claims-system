@@ -1,0 +1,82 @@
+{
+  "ref_model": "gemini-3-pro-preview",
+  "classification": {
+    "F009": {
+      "file_id": "F009",
+      "file_name": "F009_prescription.jpg",
+      "predicted_type": "UNKNOWN",
+      "confidence_score": 0.0,
+      "confidence_band": "LOW",
+      "extracted_signals": [],
+      "missing_required_signals": [],
+      "gate_outcome": "PENDING_REUPLOAD",
+      "key_findings": [],
+      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+    },
+    "F010": {
+      "file_id": "F010",
+      "file_name": "F010_hospital_bill.jpg",
+      "predicted_type": "UNKNOWN",
+      "confidence_score": 0.0,
+      "confidence_band": "LOW",
+      "extracted_signals": [],
+      "missing_required_signals": [],
+      "gate_outcome": "PENDING_REUPLOAD",
+      "key_findings": [],
+      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+    }
+  },
+  "requirements": {
+    "outcome": "BLOCKED",
+    "claim_category": "CONSULTATION",
+    "required_types": [],
+    "missing_required_types": [],
+    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+    "key_findings": []
+  },
+  "extraction": {
+    "F009": {
+      "file_id": "F009",
+      "file_name": "F009_prescription.jpg",
+      "document_type": "PRESCRIPTION",
+      "extraction_confidence": 0.0,
+      "missing_critical_fields": [
+        "ALL"
+      ],
+      "prescription": null,
+      "hospital_bill": null,
+      "lab_report": null,
+      "pharmacy_bill": null,
+      "dental_report": null,
+      "discharge_summary": null,
+      "extraction_notes": [],
+      "key_findings": [],
+      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+    },
+    "F010": {
+      "file_id": "F010",
+      "file_name": "F010_hospital_bill.jpg",
+      "document_type": "HOSPITAL_BILL",
+      "extraction_confidence": 0.0,
+      "missing_critical_fields": [
+        "ALL"
+      ],
+      "prescription": null,
+      "hospital_bill": null,
+      "lab_report": null,
+      "pharmacy_bill": null,
+      "dental_report": null,
+      "discharge_summary": null,
+      "extraction_notes": [],
+      "key_findings": [],
+      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+    }
+  },
+  "consistency": {
+    "outcome": "BLOCKED",
+    "confidence_score": 0.0,
+    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+    "key_findings": [],
+    "issues": []
+  }
+}
