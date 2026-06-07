@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 
 from google import genai
@@ -30,7 +31,7 @@ _OCR_PROMPT = (
 
 
 def capture_ocr_reference() -> None:
-    model = os.getenv("OCR_REF_MODEL", "gemini-3-pro-preview")
+    model = os.getenv("OCR_REF_MODEL", "gemini-2.5-pro")
     client = genai.Client()
     data = json.loads(TEST_CASES.read_text())
     for case in data["test_cases"]:
@@ -42,18 +43,27 @@ def capture_ocr_reference() -> None:
             if not p:
                 print(f"[skip] {cid} {d['file_id']}: no file")
                 continue
-            resp = client.models.generate_content(
-                model=model,
-                contents=[
-                    Part.from_bytes(data=p.read_bytes(),
-                                    mime_type=_MIME.get(p.suffix.lower(), "image/jpeg")),
-                    _OCR_PROMPT,
-                ],
-                config=GenerateContentConfig(temperature=0.0),
-            )
-            text = resp.text or ""
-            (out / f"{d['file_id']}.txt").write_text(text)
-            print(f"[{cid}] {d['file_id']}: {len(text)} chars")
+            contents = [
+                Part.from_bytes(data=p.read_bytes(),
+                                mime_type=_MIME.get(p.suffix.lower(), "image/jpeg")),
+                _OCR_PROMPT,
+            ]
+            text = None
+            for attempt in range(4):  # tolerate transient 503/timeouts
+                try:
+                    resp = client.models.generate_content(
+                        model=model, contents=contents,
+                        config=GenerateContentConfig(temperature=0.0))
+                    text = resp.text or ""
+                    break
+                except Exception as exc:
+                    if attempt == 3:
+                        print(f"[{cid}] {d['file_id']}: FAILED after retries: {str(exc)[:80]}")
+                        text = "[OCR_FAILED]"
+                    else:
+                        time.sleep(3 * (attempt + 1))
+            (out / f"{d['file_id']}.txt").write_text(text or "")
+            print(f"[{cid}] {d['file_id']}: {len(text or '')} chars")
 
 
 if __name__ == "__main__":
