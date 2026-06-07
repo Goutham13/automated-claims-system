@@ -151,3 +151,102 @@ class RequirementsDimension:
         ref = self._run(cases, *self.ref)
         cand = self._run(cases, *self.cand)
         return DimensionResult("requirements", cand["accuracy"], {"ref": ref, "cand": cand})
+
+
+def _section_fields(result, document_type: str) -> dict | None:
+    """The populated typed section of an extraction result as a flat dict, or None."""
+    attr = _SECTION.get(document_type)
+    section = getattr(result, attr, None) if attr else None
+    return section.model_dump() if section is not None else None
+
+
+class ExtractionAgreementDimension:
+    """Field-agreement of the candidate's extraction vs the Gemini reference (no gold labels)."""
+
+    name = "extraction"
+
+    def __init__(self, ref: tuple[str, str], cand: tuple[str, str]):
+        self.ref, self.cand = ref, cand
+
+    def score(self, cases: list[EvalCase]) -> DimensionResult:
+        rows: list[dict[str, Any]] = []
+        agreements: list[float] = []
+        ref_lat: list[float] = []
+        cand_lat: list[float] = []
+        ref_complete = cand_complete = doc_count = 0
+        for case in cases:
+            for doc in case.documents:
+                d = {"file_id": doc.file_id, "file_name": doc.file_name,
+                     "document_type": doc.actual_type, "document_text": doc.ocr_text}
+                t0 = time.perf_counter()
+                r_ref = extract_document(d, backend=self.ref[0], model=self.ref[1])
+                ref_lat.append((time.perf_counter() - t0) * 1000.0)
+                t1 = time.perf_counter()
+                r_cand = extract_document(d, backend=self.cand[0], model=self.cand[1])
+                cand_lat.append((time.perf_counter() - t1) * 1000.0)
+                doc_count += 1
+                ref_complete += int(r_ref.missing_critical_fields == [])
+                cand_complete += int(r_cand.missing_critical_fields == [])
+                ref_sec = _section_fields(r_ref, doc.actual_type)
+                cand_sec = _section_fields(r_cand, doc.actual_type)
+                if ref_sec is None or cand_sec is None:
+                    agreement = 1.0 if ref_sec == cand_sec else 0.0
+                else:
+                    keys = set(ref_sec) | set(cand_sec)
+                    match = sum(1 for k in keys if ref_sec.get(k) == cand_sec.get(k))
+                    agreement = match / len(keys) if keys else 1.0
+                agreements.append(agreement)
+                rows.append({"case_id": case.case_id, "file_id": doc.file_id,
+                             "document_type": doc.actual_type, "field_agreement": round(agreement, 3)})
+        mean_agree = sum(agreements) / len(agreements) if agreements else 0.0
+        return DimensionResult("extraction", mean_agree, {
+            "mean_field_agreement": mean_agree,
+            "ref_completeness": (ref_complete / doc_count if doc_count else 0.0),
+            "cand_completeness": (cand_complete / doc_count if doc_count else 0.0),
+            "ref_latency": _latency_stats(ref_lat),
+            "cand_latency": _latency_stats(cand_lat),
+            "rows": rows,
+        })
+
+
+class ConsistencyAgreementDimension:
+    """Outcome-agreement of the candidate's consistency check vs Gemini, on identical snapshots."""
+
+    name = "consistency"
+
+    def __init__(self, ref: tuple[str, str], cand: tuple[str, str]):
+        self.ref, self.cand = ref, cand
+
+    def score(self, cases: list[EvalCase]) -> DimensionResult:
+        rows: list[dict[str, Any]] = []
+        agree = total = 0
+        ref_lat: list[float] = []
+        cand_lat: list[float] = []
+        for case in cases:
+            # Fixed input: snapshots from the reference model's extraction.
+            ref_extractions = [
+                extract_document(
+                    {"file_id": d.file_id, "file_name": d.file_name,
+                     "document_type": d.actual_type, "document_text": d.ocr_text},
+                    backend=self.ref[0], model=self.ref[1])
+                for d in case.documents
+            ]
+            snaps = build_consistency_snapshots(ref_extractions)
+            t0 = time.perf_counter()
+            r_ref = check_consistency(snaps, backend=self.ref[0], model=self.ref[1])
+            ref_lat.append((time.perf_counter() - t0) * 1000.0)
+            t1 = time.perf_counter()
+            r_cand = check_consistency(snaps, backend=self.cand[0], model=self.cand[1])
+            cand_lat.append((time.perf_counter() - t1) * 1000.0)
+            is_match = r_ref.outcome == r_cand.outcome
+            agree += int(is_match)
+            total += 1
+            rows.append({"case_id": case.case_id, "ref_outcome": r_ref.outcome,
+                         "cand_outcome": r_cand.outcome, "match": is_match})
+        rate = agree / total if total else 0.0
+        return DimensionResult("consistency", rate, {
+            "outcome_agreement": rate,
+            "ref_latency": _latency_stats(ref_lat),
+            "cand_latency": _latency_stats(cand_lat),
+            "rows": rows,
+        })
