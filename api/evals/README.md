@@ -41,8 +41,38 @@ Only `baseline.json` is committed; ad-hoc timestamped runs are gitignored.
 
 ## Current baseline
 
-`gemini-3-flash-preview`: **95.8% (23/24)**. The single miss is the intentionally-blurry
-pharmacy bill (TC002/F004), which the gate correctly routes to `PENDING_REUPLOAD`.
+`gemini-3-flash-preview`: **95.8% (23/24)**, mean latency ~5.9 s/call. The single miss is the
+intentionally-blurry pharmacy bill (TC002/F004), which the gate correctly routes to
+`PENDING_REUPLOAD`.
+
+## Self-hosted model comparison (classification stage)
+
+Measured via this harness (24 docs, fixed OCR fixtures), accuracy + latency vs the Gemini baseline:
+
+| Model | Backend | Accuracy | Mean latency | Notes |
+|---|---|---|---|---|
+| `gemini-3-flash-preview` | gemini | **95.8%** (23/24) | 5874 ms | baseline (external API) |
+| `qwen2.5vl-ocr` (VLM reuse) | ollama | 87.5% (21/24) | 6658 ms | reuses the OCR model; **2 regressions** (HOSPITAL_BILL→DENTAL/LAB), no speed win |
+| `qwen2.5:7b-instruct` (dedicated text) | ollama | 91.7% (22/24) | 5675 ms | **1 regression** (HOSPITAL_BILL→LAB_REPORT); comparable latency; fully local |
+
+**Conclusion:** reusing the VLM for the text stages is the wrong call — a dedicated text model
+(`qwen2.5:7b-instruct`) is clearly better on both accuracy and latency. It reaches 91.7% fully
+self-hosted (no PHI to external APIs), ~4pp below Gemini, with one hospital-bill misclassification
+likely closable via prompt tuning or a 14B model.
+
+**Recommendation:** adopt `qwen2.5:7b-instruct` as the self-hosted stage model. Keep `gemini` as the
+default backend until the accuracy gap is closed; enable self-hosting via env:
+
+```bash
+OLLAMA_MAX_LOADED_MODELS=1 \
+PIPELINE_BACKEND=ollama PIPELINE_MODEL=qwen2.5:7b-instruct \
+  uvicorn main:app --port 8000
+```
+
+RAM note (16 GB): the OCR VLM (~6.9 GB) and the text model (~4.7 GB) can't co-reside; with
+`OLLAMA_MAX_LOADED_MODELS=1` Ollama swaps between the OCR pre-stage and the text stages, adding a
+few seconds of reload per claim. The measured latencies above are pure inference (no swap during a
+single-model eval).
 
 ## Deferred
 
