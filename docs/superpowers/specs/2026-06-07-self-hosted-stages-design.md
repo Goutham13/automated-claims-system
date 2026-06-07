@@ -31,7 +31,15 @@ then the model is a config flip and the eval harness picks the winner empiricall
 - Keep `structured_llm_call`'s signature and all of `stages.py` unchanged.
 - Make the model an env flip (`PIPELINE_BACKEND`, `PIPELINE_BASE_URL`, `PIPELINE_MODEL`).
 - Use the eval harness to choose between **Run A** (reuse the VLM) and **Run B** (dedicated 7B text
-  model) based on measured accuracy vs the baseline.
+  model) based on measured accuracy **and latency** vs the baseline.
+
+## Latency in the eval (added requirement)
+
+The eval harness measures **per-call latency** for the classification stage (mean / median / p95,
+plus per-row `latency_ms`), surfaced in the report and the `--compare` output. Latency is a
+first-class part of the model decision: self-hosted inference speed and the OCR↔text reload cost on
+16 GB are real tradeoffs against the Gemini baseline. The Gemini `baseline.json` is regenerated to
+include latency so A/B comparisons are apples-to-apples.
 
 ## Non-Goals (this milestone)
 
