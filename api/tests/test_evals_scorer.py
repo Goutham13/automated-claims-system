@@ -17,7 +17,7 @@ def test_classification_accuracy_and_confusion(monkeypatch):
     cases = [EvalCase("TC1", "c", "CONSULTATION",
                       [_doc("F1", "PRESCRIPTION"), _doc("F2", "HOSPITAL_BILL")])]
     preds = {"F1": _result("PRESCRIPTION"), "F2": _result("PRESCRIPTION")}  # F2 wrong
-    monkeypatch.setattr(scorer, "classify_document", lambda d: preds[d["file_id"]])
+    monkeypatch.setattr(scorer, "classify_document", lambda d, **kw: preds[d["file_id"]])
     res = scorer.ClassificationDimension().score(cases)
     assert res.name == "classification"
     assert res.score == 0.5
@@ -28,7 +28,7 @@ def test_classification_accuracy_and_confusion(monkeypatch):
 def test_gate_false_negative_counted(monkeypatch):
     cases = [EvalCase("TC1", "c", "CONSULTATION", [_doc("F1", "PRESCRIPTION")])]
     monkeypatch.setattr(scorer, "classify_document",
-                        lambda d: _result("UNKNOWN", gate="PENDING_REUPLOAD"))
+                        lambda d, **kw: _result("UNKNOWN", gate="PENDING_REUPLOAD"))
     res = scorer.ClassificationDimension().score(cases)
     assert res.details["gate_false_negatives"] == 1
 
@@ -38,7 +38,7 @@ def test_latency_recorded(monkeypatch):
 
     cases = [EvalCase("TC1", "c", "CONSULTATION", [_doc("F1", "PRESCRIPTION")])]
 
-    def slow(d):
+    def slow(d, **kw):
         time.sleep(0.01)
         return _result("PRESCRIPTION")
 

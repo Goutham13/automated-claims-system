@@ -75,7 +75,8 @@ class Dimension(Protocol):
 class ClassificationDimension:
     name = "classification"
 
-    def score(self, cases: list[EvalCase]) -> DimensionResult:
+    def score(self, cases: list[EvalCase], *, backend: str | None = None,
+              model: str | None = None) -> DimensionResult:
         rows: list[dict[str, Any]] = []
         confusion: dict[str, Counter] = defaultdict(Counter)
         latencies: list[float] = []
@@ -84,7 +85,8 @@ class ClassificationDimension:
             for doc in case.documents:
                 t0 = time.perf_counter()
                 res = classify_document(
-                    {"file_id": doc.file_id, "file_name": doc.file_name, "document_text": doc.ocr_text}
+                    {"file_id": doc.file_id, "file_name": doc.file_name, "document_text": doc.ocr_text},
+                    backend=backend, model=model,
                 )
                 latency_ms = (time.perf_counter() - t0) * 1000.0
                 latencies.append(latency_ms)
