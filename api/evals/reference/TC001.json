@@ -1,82 +1,215 @@
 {
-  "ref_model": "gemini-3-pro-preview",
+  "ref_model": "gemini-2.5-pro",
   "classification": {
     "F001": {
       "file_id": "F001",
       "file_name": "dr_sharma_prescription.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 1.0,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. Arun Sharma, MBBS, MD",
+        "Reg. No: KA/45678/2015",
+        "Chief Complaint: Fever since 3 days, body ache",
+        "Diagnosis: Viral Fever",
+        "Rx:",
+        "Tab Paracetamol 650mg - 1-1-1 x 5 days"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Doctor name: Dr. Arun Sharma",
+        "Doctor registration number found",
+        "Diagnosis: Viral Fever",
+        "Prescribed medicines found"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION. All required signals (doctor identifier, diagnosis/complaint, medicine entry) are present."
     },
     "F002": {
       "file_id": "F002",
       "file_name": "another_prescription.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. S. Nair, MBBS (General Physician)",
+        "Reg. No: KA/55231/2018",
+        "Chief Complaint: Cough and sore throat since 2 days",
+        "Diagnosis: Acute Upper Respiratory Infection",
+        "Rx:",
+        "Tab Azithromycin 500mg - 1-0-0 x 3 days"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Doctor: Dr. S. Nair",
+        "Registration: KA/55231/2018",
+        "Diagnosis: Acute Upper Respiratory Infection",
+        "Medicines prescribed: Azithromycin, Levocetirizine"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION. All required signals (doctor identifier, diagnosis, medicine entry) are present."
     }
   },
   "requirements": {
-    "outcome": "BLOCKED",
+    "outcome": "PENDING_REUPLOAD",
     "claim_category": "CONSULTATION",
-    "required_types": [],
-    "missing_required_types": [],
-    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": []
+    "required_types": [
+      "PRESCRIPTION",
+      "HOSPITAL_BILL"
+    ],
+    "missing_required_types": [
+      "HOSPITAL_BILL"
+    ],
+    "ops_message": "Received 2 PRESCRIPTION documents but no HOSPITAL_BILL. Please upload the required HOSPITAL_BILL.",
+    "key_findings": [
+      "Required type HOSPITAL_BILL is missing.",
+      "Received 2 PRESCRIPTION documents."
+    ]
   },
   "extraction": {
     "F001": {
       "file_id": "F001",
       "file_name": "dr_sharma_prescription.jpg",
       "document_type": "PRESCRIPTION",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
-      "prescription": null,
+      "extraction_confidence": 0.98,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Dr. Arun Sharma",
+        "doctor_registration_number": "KA/45678/2015",
+        "doctor_specialization": "MBBS, MD (Internal Medicine)",
+        "hospital_or_clinic_name": "City Medical Centre",
+        "hospital_or_clinic_address": "12 MG Road, Bengaluru",
+        "patient_name": "Rajesh Kumar",
+        "patient_age": "39 years",
+        "patient_gender": "M",
+        "prescription_date": "2024-11-01",
+        "chief_complaint": "Fever since 3 days, body ache",
+        "diagnosis_primary": "Viral Fever",
+        "diagnosis_secondary": [],
+        "medicines": [
+          {
+            "medicine_name": "Tab Paracetamol",
+            "strength_or_dosage": "650mg",
+            "frequency": "1-1-1",
+            "duration": "5 days",
+            "instruction": null
+          },
+          {
+            "medicine_name": "Tab Vitamin C",
+            "strength_or_dosage": "500mg",
+            "frequency": "0-0-1",
+            "duration": "7 days",
+            "instruction": null
+          }
+        ],
+        "tests_ordered": [
+          {
+            "test_name": "CBC",
+            "note": null
+          },
+          {
+            "test_name": "Dengue NS1",
+            "note": null
+          }
+        ],
+        "follow_up_instructions": "After 5 days if no improvement"
+      },
       "hospital_bill": null,
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Prescription for Rajesh Kumar dated 2024-11-01.",
+        "Diagnosed with Viral Fever.",
+        "Prescribed Paracetamol and Vitamin C.",
+        "Tests ordered: CBC, Dengue NS1."
+      ],
+      "ops_message": "Successfully extracted prescription for Rajesh Kumar from Dr. Arun Sharma."
     },
     "F002": {
       "file_id": "F002",
       "file_name": "another_prescription.jpg",
       "document_type": "PRESCRIPTION",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
-      "prescription": null,
+      "extraction_confidence": 1.0,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Dr. S. Nair",
+        "doctor_registration_number": "KA/55231/2018",
+        "doctor_specialization": "MBBS (General Physician)",
+        "hospital_or_clinic_name": "City Medical Centre",
+        "hospital_or_clinic_address": "12 MG Road, Bengaluru",
+        "patient_name": "Rajesh Kumar",
+        "patient_age": "39 years",
+        "patient_gender": "M",
+        "prescription_date": "2024-11-01",
+        "chief_complaint": "Cough and sore throat since 2 days",
+        "diagnosis_primary": "Acute Upper Respiratory Infection",
+        "diagnosis_secondary": [],
+        "medicines": [
+          {
+            "medicine_name": "Tab Azithromycin",
+            "strength_or_dosage": "500mg",
+            "frequency": "1-0-0",
+            "duration": "3 days",
+            "instruction": null
+          },
+          {
+            "medicine_name": "Tab Levocetirizine",
+            "strength_or_dosage": "5mg",
+            "frequency": "0-0-1",
+            "duration": "5 days",
+            "instruction": null
+          }
+        ],
+        "tests_ordered": [
+          {
+            "test_name": "CBC",
+            "note": null
+          }
+        ],
+        "follow_up_instructions": "After 5 days if no improvement"
+      },
       "hospital_bill": null,
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Prescription from Dr. S. Nair for Rajesh Kumar.",
+        "Diagnosis: Acute Upper Respiratory Infection.",
+        "Medicines prescribed: Azithromycin, Levocetirizine.",
+        "Test ordered: CBC."
+      ],
+      "ops_message": "Successfully extracted prescription for Rajesh Kumar dated 2024-11-01."
     }
   },
   "consistency": {
-    "outcome": "BLOCKED",
-    "confidence_score": 0.0,
-    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": [],
-    "issues": []
+    "outcome": "PASS",
+    "confidence_score": 0.95,
+    "ops_message": "Claim documents are consistent. Patient name, provider, and dates align. Note: Two different doctors ('Dr. Arun Sharma', 'Dr. S. Nair') from the same provider ('City Medical Centre') are listed on prescriptions from the same date.",
+    "key_findings": [
+      "Patient name 'Rajesh Kumar' is consistent across all documents.",
+      "Primary dates '2024-11-01' are consistent across all documents.",
+      "Provider name 'City Medical Centre' is consistent across documents.",
+      "Diagnoses 'Viral Fever' and 'Acute Upper Respiratory Infection' are medically consistent."
+    ],
+    "issues": [
+      {
+        "issue_code": "MULTIPLE_DOCTORS_NOTED",
+        "severity": "INFO",
+        "description": "Prescriptions from the same date and provider list two different doctors. This is not a conflict but is noted for review.",
+        "affected_file_names": [
+          "dr_sharma_prescription.jpg",
+          "another_prescription.jpg"
+        ],
+        "evidence": [
+          "Dr. Arun Sharma (dr_sharma_prescription.jpg)",
+          "Dr. S. Nair (another_prescription.jpg)"
+        ]
+      }
+    ]
   }
 }

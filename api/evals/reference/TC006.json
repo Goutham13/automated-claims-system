@@ -1,52 +1,103 @@
 {
-  "ref_model": "gemini-3-pro-preview",
+  "ref_model": "gemini-2.5-pro",
   "classification": {
     "F011": {
       "file_id": "F011",
       "file_name": "F011_hospital_bill.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "DENTAL_REPORT",
+      "confidence_score": 0.98,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "SMILE DENTAL CLINIC",
+        "Treating Dentist: Dr. R. Menon",
+        "Root Canal Treatment",
+        "Teeth Whitening"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Identified as a bill from a dental clinic.",
+        "Contains specific dental procedures like 'Root Canal Treatment'.",
+        "Includes dentist name and patient details."
+      ],
+      "ops_message": "Successfully classified as DENTAL_REPORT. All required signals, including dental clinic identifier and specific dental procedures, are present."
     }
   },
   "requirements": {
-    "outcome": "BLOCKED",
+    "outcome": "PASS",
     "claim_category": "DENTAL",
-    "required_types": [],
+    "required_types": [
+      "HOSPITAL_BILL"
+    ],
     "missing_required_types": [],
-    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": []
+    "ops_message": "All required documents for DENTAL claim have been received.",
+    "key_findings": [
+      "Required document HOSPITAL_BILL was found.",
+      "Claim can proceed."
+    ]
   },
   "extraction": {
     "F011": {
       "file_id": "F011",
       "file_name": "F011_hospital_bill.jpg",
       "document_type": "HOSPITAL_BILL",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
       "prescription": null,
-      "hospital_bill": null,
+      "hospital_bill": {
+        "hospital_name": "SMILE DENTAL CLINIC",
+        "hospital_address": "Banjara Hills, Hyderabad - 500034",
+        "gstin": "36ABCDE1234F1Z7",
+        "bill_number": "SDC/2024/10981",
+        "bill_date": "2024-10-15",
+        "patient_name": "Priya Singh",
+        "patient_age": "34",
+        "patient_gender": "Female",
+        "referring_doctor_name": "Dr. R. Menon",
+        "line_items": [
+          {
+            "description": "Root Canal Treatment",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 8000.0,
+            "category_hint": "PROCEDURE"
+          },
+          {
+            "description": "Teeth Whitening",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 4000.0,
+            "category_hint": "PROCEDURE"
+          }
+        ],
+        "subtotal_amount": 12000.0,
+        "gst_amount": 0.0,
+        "discount_amount": null,
+        "total_amount": 12000.0,
+        "payment_mode": "UPI"
+      },
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Bill for Priya Singh from SMILE DENTAL CLINIC.",
+        "Total amount: 12000.00 on 2024-10-15.",
+        "Procedures: Root Canal Treatment, Teeth Whitening."
+      ],
+      "ops_message": "Successfully extracted HOSPITAL_BILL with all critical fields."
     }
   },
   "consistency": {
-    "outcome": "BLOCKED",
-    "confidence_score": 0.0,
-    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": [],
+    "outcome": "PASS",
+    "confidence_score": 1.0,
+    "ops_message": "Claim passed consistency checks. Only a single document was provided and no user-entered date or amount was available for comparison.",
+    "key_findings": [
+      "Patient name 'Priya Singh' is consistent as it appears on the only document provided.",
+      "Date and amount checks were not performed as no user-provided values were available for comparison.",
+      "No other documents were available to cross-reference provider, doctor, or diagnosis information."
+    ],
     "issues": []
   }
 }

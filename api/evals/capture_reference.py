@@ -29,6 +29,7 @@ def capture_reference() -> None:
     backend = "gemini"
     REFERENCE_DIR.mkdir(parents=True, exist_ok=True)
     cases = load_cases()
+    total_docs = err_docs = 0
     for case in cases:
         classification: dict[str, dict] = {}
         extraction: dict[str, dict] = {}
@@ -53,7 +54,20 @@ def capture_reference() -> None:
             "consistency": consistency.model_dump(),
         }
         (REFERENCE_DIR / f"{case.case_id}.json").write_text(json.dumps(payload, indent=2))
-        print(f"[{case.case_id}] reference captured ({len(case.documents)} docs)")
+        errs = sum(1 for e in extraction.values() if "failed:" in (e.get("ops_message") or "").lower())
+        total_docs += len(extraction)
+        err_docs += errs
+        print(f"[{case.case_id}] reference captured ({len(case.documents)} docs"
+              + (f", {errs} extraction error(s)" if errs else "") + ")")
+
+    # Systematic failure (e.g. wrong model id) → abort. Isolated errors (e.g. an
+    # intentionally-unreadable doc) are expected and kept as-is.
+    if total_docs and err_docs / total_docs > 0.5:
+        raise SystemExit(
+            f"Reference model '{model}' failed on {err_docs}/{total_docs} docs — likely a bad "
+            f"REF_MODEL or auth issue. Fix and re-run; the golden set must be real outputs.")
+    if err_docs:
+        print(f"\nNote: {err_docs}/{total_docs} docs errored (expected for unreadable/edge docs).")
 
 
 if __name__ == "__main__":

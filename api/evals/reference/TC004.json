@@ -1,82 +1,195 @@
 {
-  "ref_model": "gemini-3-pro-preview",
+  "ref_model": "gemini-2.5-pro",
   "classification": {
     "F007": {
       "file_id": "F007",
       "file_name": "F007_prescription.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. Arun Sharma, MBBS, MD",
+        "Reg. No: KA/45678/2015",
+        "Chief Complaint: Fever and body ache",
+        "Diagnosis: Viral Fever",
+        "Rx:",
+        "Tab Paracetamol 650mg - 1-1-1 x 5 days"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Found doctor name: Dr. Arun Sharma",
+        "Found doctor registration number: KA/45678/2015",
+        "Found diagnosis: Viral Fever",
+        "Found medicine: Tab Paracetamol 650mg"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION. All required signals (doctor identifier, diagnosis/complaint, medicine entry) are present."
     },
     "F008": {
       "file_id": "F008",
       "file_name": "F008_hospital_bill.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "HOSPITAL_BILL",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "CITY CLINIC, BENGALURU",
+        "BILL / RECEIPT",
+        "Bill No: CCB/2024/08321",
+        "Patient Name: Rajesh Kumar",
+        "Total Amount: 1500.00"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Found bill header: BILL / RECEIPT",
+        "Identified patient name: Rajesh Kumar",
+        "Located total amount: 1500.00"
+      ],
+      "ops_message": "Successfully classified as HOSPITAL_BILL with high confidence. All required signals (bill identifier, patient name, monetary amount) are present."
     }
   },
   "requirements": {
-    "outcome": "BLOCKED",
+    "outcome": "PASS",
     "claim_category": "CONSULTATION",
-    "required_types": [],
+    "required_types": [
+      "PRESCRIPTION",
+      "HOSPITAL_BILL"
+    ],
     "missing_required_types": [],
-    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": []
+    "ops_message": "All required documents received for CONSULTATION claim.",
+    "key_findings": [
+      "All required documents (PRESCRIPTION, HOSPITAL_BILL) are present."
+    ]
   },
   "extraction": {
     "F007": {
       "file_id": "F007",
       "file_name": "F007_prescription.jpg",
       "document_type": "PRESCRIPTION",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
-      "prescription": null,
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Dr. Arun Sharma",
+        "doctor_registration_number": "KA/45678/2015",
+        "doctor_specialization": "MBBS, MD (Internal Medicine)",
+        "hospital_or_clinic_name": "City Clinic",
+        "hospital_or_clinic_address": "Bengaluru",
+        "patient_name": "Rajesh Kumar",
+        "patient_age": "39 years",
+        "patient_gender": "M",
+        "prescription_date": "2024-11-01",
+        "chief_complaint": "Fever and body ache",
+        "diagnosis_primary": "Viral Fever",
+        "diagnosis_secondary": [],
+        "medicines": [
+          {
+            "medicine_name": "Tab Paracetamol",
+            "strength_or_dosage": "650mg",
+            "frequency": "1-1-1",
+            "duration": "5 days",
+            "instruction": null
+          },
+          {
+            "medicine_name": "Tab Vitamin C",
+            "strength_or_dosage": "500mg",
+            "frequency": "0-0-1",
+            "duration": "7 days",
+            "instruction": null
+          }
+        ],
+        "tests_ordered": [
+          {
+            "test_name": "CBC",
+            "note": null
+          },
+          {
+            "test_name": "Dengue NS1",
+            "note": null
+          }
+        ],
+        "follow_up_instructions": "After 5 days if no improvement"
+      },
       "hospital_bill": null,
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Prescription for Viral Fever issued to Rajesh Kumar on 2024-11-01.",
+        "Prescribed medicines include Paracetamol and Vitamin C.",
+        "Diagnostic tests ordered: CBC, Dengue NS1."
+      ],
+      "ops_message": "Successfully extracted prescription for Rajesh Kumar."
     },
     "F008": {
       "file_id": "F008",
       "file_name": "F008_hospital_bill.jpg",
       "document_type": "HOSPITAL_BILL",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
       "prescription": null,
-      "hospital_bill": null,
+      "hospital_bill": {
+        "hospital_name": "CITY CLINIC",
+        "hospital_address": "12 MG Road, Bengaluru - 560001",
+        "gstin": "29ABCDE1234F1Z5",
+        "bill_number": "CCB/2024/08321",
+        "bill_date": "2024-11-01",
+        "patient_name": "Rajesh Kumar",
+        "patient_age": "39",
+        "patient_gender": "Male",
+        "referring_doctor_name": "Dr. Arun Sharma",
+        "line_items": [
+          {
+            "description": "Consultation Fee",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 1000.0,
+            "category_hint": "CONSULTATION"
+          },
+          {
+            "description": "CBC Test",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 300.0,
+            "category_hint": "DIAGNOSTIC"
+          },
+          {
+            "description": "Dengue NS1 Test",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 200.0,
+            "category_hint": "DIAGNOSTIC"
+          }
+        ],
+        "subtotal_amount": 1500.0,
+        "gst_amount": 0.0,
+        "discount_amount": null,
+        "total_amount": 1500.0,
+        "payment_mode": null
+      },
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Bill for Rajesh Kumar from CITY CLINIC.",
+        "Total amount: 1500.00 on 2024-11-01.",
+        "Services include Consultation, CBC Test, and Dengue NS1 Test."
+      ],
+      "ops_message": "Successfully extracted hospital bill for Rajesh Kumar."
     }
   },
   "consistency": {
-    "outcome": "BLOCKED",
-    "confidence_score": 0.0,
-    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": [],
+    "outcome": "PASS",
+    "confidence_score": 1.0,
+    "ops_message": "All documents are consistent. Patient name 'Rajesh Kumar', date '2024-11-01', and provider 'City Clinic' match across the prescription and hospital bill.",
+    "key_findings": [
+      "Patient name 'Rajesh Kumar' is consistent across all documents.",
+      "Treatment date '2024-11-01' is consistent across all documents.",
+      "Provider 'City Clinic' and Doctor 'Dr. Arun Sharma' are consistent across all documents."
+    ],
     "issues": []
   }
 }

@@ -1,57 +1,109 @@
 {
-  "ref_model": "gemini-3-pro-preview",
+  "ref_model": "gemini-2.5-pro",
   "classification": {
     "F003": {
       "file_id": "F003",
       "file_name": "prescription.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. Kavita Rao, MBBS, MD",
+        "Reg. No: KA/76231/2016",
+        "Chief Complaint: Allergic rhinitis and mild fever",
+        "Diagnosis: Upper respiratory infection",
+        "Rx:",
+        "Tab Levocetirizine 5mg - 0-0-1 x 5 days"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Doctor: Dr. Kavita Rao",
+        "Registration: KA/76231/2016",
+        "Diagnosis: Upper respiratory infection",
+        "Medicines prescribed: Levocetirizine, Paracetamol"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION. All required signals (doctor identifier, diagnosis/complaint, medicine entries) are present."
     },
     "F004": {
       "file_id": "F004",
       "file_name": "blurry_bill.jpg",
       "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
+      "confidence_score": 0.1,
       "confidence_band": "LOW",
       "extracted_signals": [],
       "missing_required_signals": [],
       "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Document text is unreadable."
+      ],
+      "ops_message": "Document is unreadable. The text extraction failed, likely due to a blurry or low-quality image. Please re-upload a clear copy."
     }
   },
   "requirements": {
-    "outcome": "BLOCKED",
+    "outcome": "PASS",
     "claim_category": "PHARMACY",
-    "required_types": [],
+    "required_types": [
+      "PRESCRIPTION",
+      "PHARMACY_BILL"
+    ],
     "missing_required_types": [],
-    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": []
+    "ops_message": "All required documents (PRESCRIPTION, PHARMACY_BILL) have been received.",
+    "key_findings": [
+      "All required documents for PHARMACY claim are present."
+    ]
   },
   "extraction": {
     "F003": {
       "file_id": "F003",
       "file_name": "prescription.jpg",
       "document_type": "PRESCRIPTION",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
-      "prescription": null,
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Dr. Kavita Rao",
+        "doctor_registration_number": "KA/76231/2016",
+        "doctor_specialization": "MBBS, MD",
+        "hospital_or_clinic_name": "WellCare Clinic",
+        "hospital_or_clinic_address": "Indiranagar, Bengaluru",
+        "patient_name": "Sneha Reddy",
+        "patient_age": "32 years",
+        "patient_gender": "F",
+        "prescription_date": "2024-10-25",
+        "chief_complaint": "Allergic rhinitis and mild fever",
+        "diagnosis_primary": "Upper respiratory infection",
+        "diagnosis_secondary": [],
+        "medicines": [
+          {
+            "medicine_name": "Tab Levocetirizine",
+            "strength_or_dosage": "5mg",
+            "frequency": "0-0-1",
+            "duration": "5 days",
+            "instruction": null
+          },
+          {
+            "medicine_name": "Tab Paracetamol",
+            "strength_or_dosage": "650mg",
+            "frequency": "1-1-1",
+            "duration": "3 days",
+            "instruction": null
+          }
+        ],
+        "tests_ordered": [],
+        "follow_up_instructions": "If symptoms persist after 5 days"
+      },
       "hospital_bill": null,
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Extracted prescription for Sneha Reddy from Dr. Kavita Rao.",
+        "Diagnosis: Upper respiratory infection.",
+        "Medicines prescribed: Levocetirizine, Paracetamol."
+      ],
+      "ops_message": "Successfully extracted PRESCRIPTION for F003."
     },
     "F004": {
       "file_id": "F004",
@@ -59,24 +111,47 @@
       "document_type": "PHARMACY_BILL",
       "extraction_confidence": 0.0,
       "missing_critical_fields": [
-        "ALL"
+        "patient_name",
+        "bill_date",
+        "net_amount"
       ],
       "prescription": null,
       "hospital_bill": null,
       "lab_report": null,
-      "pharmacy_bill": null,
+      "pharmacy_bill": {
+        "pharmacy_name": null,
+        "pharmacy_address": null,
+        "drug_license_number": null,
+        "bill_number": null,
+        "bill_date": null,
+        "patient_name": null,
+        "prescribing_doctor_name": null,
+        "medicines": [],
+        "subtotal_amount": null,
+        "discount_amount": null,
+        "net_amount": null,
+        "pharmacist_name": null
+      },
       "dental_report": null,
       "discharge_summary": null,
-      "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "extraction_notes": [
+        "Document text is unreadable, no data could be extracted."
+      ],
+      "key_findings": [
+        "Document is unreadable."
+      ],
+      "ops_message": "Document is unreadable, cannot extract any fields."
     }
   },
   "consistency": {
-    "outcome": "BLOCKED",
-    "confidence_score": 0.0,
-    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": [],
+    "outcome": "PASS",
+    "confidence_score": 0.9,
+    "ops_message": "Claim data is consistent. No contradictions found between the prescription and the pharmacy bill, as the bill had no extractable information.",
+    "key_findings": [
+      "Patient name, date, and diagnosis were only present on one document (prescription.jpg).",
+      "The second document (blurry_bill.jpg) provided no data for cross-verification.",
+      "No inconsistencies were detected based on the available information."
+    ],
     "issues": []
   }
 }

@@ -1,82 +1,188 @@
 {
-  "ref_model": "gemini-3-pro-preview",
+  "ref_model": "gemini-2.5-pro",
   "classification": {
     "F015": {
       "file_id": "F015",
       "file_name": "F015_prescription.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. R. Gupta, MBBS, MD",
+        "Reg. No: DL/34567/2016",
+        "Chief Complaint: Loose motions, abdominal pain",
+        "Diagnosis: Gastroenteritis",
+        "Rx:",
+        "1. Antibiotics - as directed"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Doctor: Dr. R. Gupta",
+        "Registration No: DL/34567/2016",
+        "Diagnosis: Gastroenteritis",
+        "Prescribed medicines found"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION. All required signals (doctor identifier, diagnosis, medicine entries) are present."
     },
     "F016": {
       "file_id": "F016",
       "file_name": "F016_hospital_bill.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "HOSPITAL_BILL",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "METRO CARE CLINIC",
+        "BILL / RECEIPT",
+        "Bill No: MCC/2024/55220",
+        "Patient Name: Amit Verma",
+        "Total Amount: 7500.00"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Identified as a bill/receipt from 'METRO CARE CLINIC'.",
+        "Contains patient name 'Amit Verma'.",
+        "Includes itemized charges and a total amount of 7500.00."
+      ],
+      "ops_message": "Successfully classified as HOSPITAL_BILL. All required signals (bill identifier, patient name, monetary amounts) are present."
     }
   },
   "requirements": {
-    "outcome": "BLOCKED",
+    "outcome": "PASS",
     "claim_category": "CONSULTATION",
-    "required_types": [],
+    "required_types": [
+      "PRESCRIPTION",
+      "HOSPITAL_BILL"
+    ],
     "missing_required_types": [],
-    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": []
+    "ops_message": "All required documents received for CONSULTATION claim: PRESCRIPTION, HOSPITAL_BILL.",
+    "key_findings": [
+      "All requirements for CONSULTATION are met."
+    ]
   },
   "extraction": {
     "F015": {
       "file_id": "F015",
       "file_name": "F015_prescription.jpg",
       "document_type": "PRESCRIPTION",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
-      "prescription": null,
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Dr. R. Gupta",
+        "doctor_registration_number": "DL/34567/2016",
+        "doctor_specialization": "MBBS, MD",
+        "hospital_or_clinic_name": "Metro Care Clinic",
+        "hospital_or_clinic_address": "New Delhi",
+        "patient_name": "Amit Verma",
+        "patient_age": "35 years",
+        "patient_gender": "M",
+        "prescription_date": "2024-10-20",
+        "chief_complaint": "Loose motions, abdominal pain",
+        "diagnosis_primary": "Gastroenteritis",
+        "diagnosis_secondary": [],
+        "medicines": [
+          {
+            "medicine_name": "Antibiotics",
+            "strength_or_dosage": null,
+            "frequency": null,
+            "duration": null,
+            "instruction": "as directed"
+          },
+          {
+            "medicine_name": "Probiotics",
+            "strength_or_dosage": null,
+            "frequency": "twice daily",
+            "duration": null,
+            "instruction": null
+          },
+          {
+            "medicine_name": "ORS",
+            "strength_or_dosage": null,
+            "frequency": null,
+            "duration": null,
+            "instruction": "frequent oral hydration"
+          }
+        ],
+        "tests_ordered": [],
+        "follow_up_instructions": "If symptoms worsen, revisit in 2 days"
+      },
       "hospital_bill": null,
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Prescription for Amit Verma from Dr. R. Gupta on 2024-10-20.",
+        "Diagnosis: Gastroenteritis.",
+        "Medicines prescribed: Antibiotics, Probiotics, ORS."
+      ],
+      "ops_message": "Successfully extracted prescription for Gastroenteritis."
     },
     "F016": {
       "file_id": "F016",
       "file_name": "F016_hospital_bill.jpg",
       "document_type": "HOSPITAL_BILL",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
       "prescription": null,
-      "hospital_bill": null,
+      "hospital_bill": {
+        "hospital_name": "METRO CARE CLINIC",
+        "hospital_address": "Connaught Place, New Delhi - 110001",
+        "gstin": "07ABCDE1234F1Z9",
+        "bill_number": "MCC/2024/55220",
+        "bill_date": "2024-10-20",
+        "patient_name": "Amit Verma",
+        "patient_age": "35",
+        "patient_gender": "Male",
+        "referring_doctor_name": "Dr. R. Gupta",
+        "line_items": [
+          {
+            "description": "Consultation Fee",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 2000.0,
+            "category_hint": "CONSULTATION"
+          },
+          {
+            "description": "Medicines",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 5500.0,
+            "category_hint": "MEDICINE"
+          }
+        ],
+        "subtotal_amount": 7500.0,
+        "gst_amount": 0.0,
+        "discount_amount": null,
+        "total_amount": 7500.0,
+        "payment_mode": null
+      },
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Patient: Amit Verma",
+        "Bill Date: 2024-10-20",
+        "Total Amount: 7500.00",
+        "Hospital: METRO CARE CLINIC"
+      ],
+      "ops_message": "Successfully extracted 13 fields from HOSPITAL_BILL."
     }
   },
   "consistency": {
-    "outcome": "BLOCKED",
-    "confidence_score": 0.0,
-    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": [],
+    "outcome": "PASS",
+    "confidence_score": 1.0,
+    "ops_message": "All documents are consistent. Patient 'Amit Verma', date '2024-10-20', provider 'Metro Care Clinic', and doctor 'Dr. R. Gupta' match across the prescription and hospital bill.",
+    "key_findings": [
+      "Patient name 'Amit Verma' is consistent across all documents.",
+      "Treatment date '2024-10-20' is consistent across all documents.",
+      "Provider 'Metro Care Clinic' and Doctor 'Dr. R. Gupta' are consistent across all documents.",
+      "Diagnosis 'Gastroenteritis' on the prescription aligns with the hospital bill."
+    ],
     "issues": []
   }
 }

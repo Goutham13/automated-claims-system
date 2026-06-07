@@ -1,82 +1,174 @@
 {
-  "ref_model": "gemini-3-pro-preview",
+  "ref_model": "gemini-2.5-pro",
   "classification": {
     "F021": {
       "file_id": "F021",
       "file_name": "F021_prescription.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
-      "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.95,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Vaidya T. Krishnan, BAMS",
+        "Reg. No: AYUR/KL/2345/2019",
+        "Chief Complaint: Chronic bilateral knee joint pain",
+        "Diagnosis: Chronic Joint Pain"
+      ],
+      "missing_required_signals": [
+        "medicine entry"
+      ],
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Identified as Prescription",
+        "Doctor: Vaidya T. Krishnan",
+        "Diagnosis: Chronic Joint Pain"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION with high confidence. Document contains clear doctor identification and diagnosis, meeting the minimum requirements."
     },
     "F022": {
       "file_id": "F022",
       "file_name": "F022_hospital_bill.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "HOSPITAL_BILL",
+      "confidence_score": 0.95,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "AYUR WELLNESS CENTRE",
+        "BILL / RECEIPT",
+        "Bill No: AWC/2024/11828",
+        "Patient Name: Kavita Nair",
+        "Panchakarma Therapy (5 sessions)   3000.00",
+        "Total Amount: 4000.00"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Document identified as a bill/receipt.",
+        "Contains patient name: Kavita Nair.",
+        "Includes itemized services and a total amount of 4000.00."
+      ],
+      "ops_message": "Successfully classified as HOSPITAL_BILL. All required signals (bill identifier, patient name, line items/total amount) are present."
     }
   },
   "requirements": {
-    "outcome": "BLOCKED",
+    "outcome": "PASS",
     "claim_category": "ALTERNATIVE_MEDICINE",
-    "required_types": [],
+    "required_types": [
+      "PRESCRIPTION",
+      "HOSPITAL_BILL"
+    ],
     "missing_required_types": [],
-    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": []
+    "ops_message": "All required documents (PRESCRIPTION, HOSPITAL_BILL) have been received.",
+    "key_findings": [
+      "Claim category is ALTERNATIVE_MEDICINE.",
+      "All required documents are present."
+    ]
   },
   "extraction": {
     "F021": {
       "file_id": "F021",
       "file_name": "F021_prescription.jpg",
       "document_type": "PRESCRIPTION",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
-      "prescription": null,
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Vaidya T. Krishnan",
+        "doctor_registration_number": "AYUR/KL/2345/2019",
+        "doctor_specialization": "BAMS",
+        "hospital_or_clinic_name": "Ayur Wellness Centre",
+        "hospital_or_clinic_address": "Kochi",
+        "patient_name": "Kavita Nair",
+        "patient_age": "41 years",
+        "patient_gender": "F",
+        "prescription_date": "2024-10-28",
+        "chief_complaint": "Chronic bilateral knee joint pain",
+        "diagnosis_primary": "Chronic Joint Pain",
+        "diagnosis_secondary": [],
+        "medicines": [
+          {
+            "medicine_name": "Panchakarma Therapy",
+            "strength_or_dosage": null,
+            "frequency": null,
+            "duration": "5 sessions",
+            "instruction": null
+          }
+        ],
+        "tests_ordered": [],
+        "follow_up_instructions": "Panchakarma (5 sessions) + follow-up consultation"
+      },
       "hospital_bill": null,
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Prescription issued to Kavita Nair on 2024-10-28.",
+        "Diagnosis of Chronic Joint Pain.",
+        "Panchakarma Therapy (5 sessions) advised."
+      ],
+      "ops_message": "Successfully extracted prescription for Kavita Nair from Dr. Vaidya T. Krishnan."
     },
     "F022": {
       "file_id": "F022",
       "file_name": "F022_hospital_bill.jpg",
       "document_type": "HOSPITAL_BILL",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
       "prescription": null,
-      "hospital_bill": null,
+      "hospital_bill": {
+        "hospital_name": "AYUR WELLNESS CENTRE",
+        "hospital_address": "MG Road, Kochi - 682016",
+        "gstin": "32ABCDE1234F1Z3",
+        "bill_number": "AWC/2024/11828",
+        "bill_date": "2024-10-28",
+        "patient_name": "Kavita Nair",
+        "patient_age": null,
+        "patient_gender": null,
+        "referring_doctor_name": "Vaidya T. Krishnan",
+        "line_items": [
+          {
+            "description": "Panchakarma Therapy (5 sessions)",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 3000.0,
+            "category_hint": "PROCEDURE"
+          },
+          {
+            "description": "Consultation",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 1000.0,
+            "category_hint": "CONSULTATION"
+          }
+        ],
+        "subtotal_amount": 4000.0,
+        "gst_amount": 0.0,
+        "discount_amount": null,
+        "total_amount": 4000.0,
+        "payment_mode": null
+      },
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Bill for Kavita Nair from AYUR WELLNESS CENTRE.",
+        "Total amount: 4000.00 on 2024-10-28.",
+        "Services include Panchakarma Therapy and Consultation."
+      ],
+      "ops_message": "Successfully extracted HOSPITAL_BILL for F022."
     }
   },
   "consistency": {
-    "outcome": "BLOCKED",
-    "confidence_score": 0.0,
-    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": [],
+    "outcome": "PASS",
+    "confidence_score": 1.0,
+    "ops_message": "All documents are consistent. Patient name 'Kavita Nair', date '2024-10-28', and provider 'Ayur Wellness Centre' match across the prescription and hospital bill.",
+    "key_findings": [
+      "Patient name 'Kavita Nair' is consistent across all documents.",
+      "Treatment date '2024-10-28' is consistent across all documents.",
+      "Provider 'Ayur Wellness Centre' and Doctor 'Vaidya T. Krishnan' are consistent across all documents.",
+      "Diagnosis 'Chronic Joint Pain' is present and does not conflict with other documents."
+    ],
     "issues": []
   }
 }

@@ -1,112 +1,247 @@
 {
-  "ref_model": "gemini-3-pro-preview",
+  "ref_model": "gemini-2.5-pro",
   "classification": {
     "F012": {
       "file_id": "F012",
       "file_name": "F012_prescription.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.95,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. Venkat Rao, MS (Ortho)",
+        "Reg. No: AP/67890/2017",
+        "Chief Complaint: Severe lower back pain with radicular symptoms",
+        "Diagnosis: Suspected Lumbar Disc Herniation"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Doctor: Dr. Venkat Rao",
+        "Registration: AP/67890/2017",
+        "Diagnosis: Suspected Lumbar Disc Herniation"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION based on doctor details and diagnosis. Although no medicine is listed, the presence of a doctor identifier and a clear diagnosis meets the minimum requirements."
     },
     "F013": {
       "file_id": "F013",
       "file_name": "F013_lab_report.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "LAB_REPORT",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "PRECISION DIAGNOSTICS PVT LTD",
+        "NABL Accredited Lab | Lab ID: AP-NABL-2211",
+        "Report Date: 2024-11-02",
+        "TEST NAME RESULT",
+        "MRI Lumbar Spine Completed",
+        "Impression: L4-L5 disc protrusion with nerve root compression"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Lab Report from PRECISION DIAGNOSTICS PVT LTD",
+        "Test: MRI Lumbar Spine",
+        "Report Date: 2024-11-02"
+      ],
+      "ops_message": "Successfully classified as LAB_REPORT with high confidence. All required signals (lab identifier, test name/result, report date) are present."
     },
     "F014": {
       "file_id": "F014",
       "file_name": "F014_hospital_bill.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "HOSPITAL_BILL",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "ORTHO IMAGING CENTRE",
+        "BILL / RECEIPT",
+        "Bill No: OIC/2024/44102",
+        "Patient Name: Suresh Patil",
+        "MRI Lumbar Spine 15000.00",
+        "Total Amount: 15000.00"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Found bill header: BILL / RECEIPT",
+        "Found patient name: Suresh Patil",
+        "Found total amount: 15000.00"
+      ],
+      "ops_message": "Successfully classified as HOSPITAL_BILL with high confidence. All required signals (bill identifier, patient name, monetary amount) are present."
     }
   },
   "requirements": {
-    "outcome": "BLOCKED",
+    "outcome": "PASS",
     "claim_category": "DIAGNOSTIC",
-    "required_types": [],
+    "required_types": [
+      "PRESCRIPTION",
+      "LAB_REPORT",
+      "HOSPITAL_BILL"
+    ],
     "missing_required_types": [],
-    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": []
+    "ops_message": "All required documents (PRESCRIPTION, LAB_REPORT, HOSPITAL_BILL) have been received for the DIAGNOSTIC claim.",
+    "key_findings": [
+      "All required documents for DIAGNOSTIC claim are present.",
+      "Found: PRESCRIPTION, LAB_REPORT, HOSPITAL_BILL."
+    ]
   },
   "extraction": {
     "F012": {
       "file_id": "F012",
       "file_name": "F012_prescription.jpg",
       "document_type": "PRESCRIPTION",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
-      "prescription": null,
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Dr. Venkat Rao",
+        "doctor_registration_number": "AP/67890/2017",
+        "doctor_specialization": "MS (Ortho)",
+        "hospital_or_clinic_name": "Spine & Neuro Clinic",
+        "hospital_or_clinic_address": "Hyderabad",
+        "patient_name": "Suresh Patil",
+        "patient_age": "48 years",
+        "patient_gender": "M",
+        "prescription_date": "2024-11-02",
+        "chief_complaint": "Severe lower back pain with radicular symptoms",
+        "diagnosis_primary": "Suspected Lumbar Disc Herniation",
+        "diagnosis_secondary": [],
+        "medicines": [],
+        "tests_ordered": [
+          {
+            "test_name": "MRI Lumbar Spine",
+            "note": null
+          }
+        ],
+        "follow_up_instructions": "Review with MRI films and report"
+      },
       "hospital_bill": null,
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Prescription issued to Suresh Patil on 2024-11-02.",
+        "Primary diagnosis is Suspected Lumbar Disc Herniation.",
+        "MRI Lumbar Spine has been ordered."
+      ],
+      "ops_message": "Successfully extracted prescription for Suresh Patil from Dr. Venkat Rao."
     },
     "F013": {
       "file_id": "F013",
       "file_name": "F013_lab_report.jpg",
       "document_type": "LAB_REPORT",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
       "prescription": null,
       "hospital_bill": null,
-      "lab_report": null,
+      "lab_report": {
+        "lab_name": "PRECISION DIAGNOSTICS PVT LTD",
+        "lab_address": "Banjara Hills, Hyderabad",
+        "nabl_accredited": true,
+        "lab_id": "AP-NABL-2211",
+        "sample_id": "PD-2024-77123",
+        "patient_name": "Suresh Patil",
+        "patient_age": "48",
+        "patient_gender": "Male",
+        "referring_doctor_name": "Dr. Venkat Rao",
+        "sample_date": "2024-11-02",
+        "report_date": "2024-11-02",
+        "test_results": [
+          {
+            "test_name": "MRI Lumbar Spine",
+            "result_value": "Completed",
+            "unit": null,
+            "normal_range": null,
+            "interpretation": "L4-L5 disc protrusion with nerve root compression"
+          }
+        ],
+        "remarks": null,
+        "pathologist_name": null,
+        "pathologist_registration_number": null
+      },
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Lab Report from PRECISION DIAGNOSTICS PVT LTD",
+        "Patient: Suresh Patil",
+        "Test: MRI Lumbar Spine",
+        "Impression: L4-L5 disc protrusion with nerve root compression"
+      ],
+      "ops_message": "Successfully extracted LAB_REPORT."
     },
     "F014": {
       "file_id": "F014",
       "file_name": "F014_hospital_bill.jpg",
       "document_type": "HOSPITAL_BILL",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
       "prescription": null,
-      "hospital_bill": null,
+      "hospital_bill": {
+        "hospital_name": "ORTHO IMAGING CENTRE",
+        "hospital_address": "Jubilee Hills, Hyderabad - 500033",
+        "gstin": "36ABCDE1234F1Z7",
+        "bill_number": "OIC/2024/44102",
+        "bill_date": "2024-11-02",
+        "patient_name": "Suresh Patil",
+        "patient_age": null,
+        "patient_gender": null,
+        "referring_doctor_name": "Dr. Venkat Rao",
+        "line_items": [
+          {
+            "description": "MRI Lumbar Spine",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 15000.0,
+            "category_hint": "DIAGNOSTIC"
+          }
+        ],
+        "subtotal_amount": 15000.0,
+        "gst_amount": 0.0,
+        "discount_amount": null,
+        "total_amount": 15000.0,
+        "payment_mode": null
+      },
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Bill for Suresh Patil from ORTHO IMAGING CENTRE.",
+        "Total amount: 15000.00 on 2024-11-02.",
+        "Service: MRI Lumbar Spine."
+      ],
+      "ops_message": "Successfully extracted HOSPITAL_BILL."
     }
   },
   "consistency": {
-    "outcome": "BLOCKED",
-    "confidence_score": 0.0,
-    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": [],
-    "issues": []
+    "outcome": "PASS",
+    "confidence_score": 0.95,
+    "ops_message": "All documents are consistent for patient Suresh Patil. Treatment dates and doctor name (Dr. Venkat Rao) match across all documents. Multiple providers noted: Spine & Neuro Clinic, PRECISION DIAGNOSTICS PVT LTD, ORTHO IMAGING CENTRE.",
+    "key_findings": [
+      "Patient name 'Suresh Patil' is consistent across all documents.",
+      "Primary date '2024-11-02' is consistent across all documents.",
+      "Doctor name 'Dr. Venkat Rao' is consistent across all documents.",
+      "Multiple providers were identified, which is plausible for the different services (prescription, lab, imaging)."
+    ],
+    "issues": [
+      {
+        "issue_code": "MULTIPLE_PROVIDERS_NOTED",
+        "severity": "INFO",
+        "description": "Multiple providers were found across documents, but they appear to be for different, plausible services (clinic, lab, imaging) under the same referring doctor.",
+        "affected_file_names": [
+          "F012_prescription.jpg",
+          "F013_lab_report.jpg",
+          "F014_hospital_bill.jpg"
+        ],
+        "evidence": [
+          "Spine & Neuro Clinic (F012_prescription.jpg)",
+          "PRECISION DIAGNOSTICS PVT LTD (F013_lab_report.jpg)",
+          "ORTHO IMAGING CENTRE (F014_hospital_bill.jpg)"
+        ]
+      }
+    ]
   }
 }

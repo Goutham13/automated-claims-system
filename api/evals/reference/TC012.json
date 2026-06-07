@@ -1,82 +1,171 @@
 {
-  "ref_model": "gemini-3-pro-preview",
+  "ref_model": "gemini-2.5-pro",
   "classification": {
     "F023": {
       "file_id": "F023",
       "file_name": "F023_prescription.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
-      "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.95,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. P. Banerjee, MD (Internal Medicine)",
+        "Reg. No: WB/34567/2015",
+        "Chief Complaint: Progressive weight gain and fatigue",
+        "Diagnosis: Morbid Obesity - BMI 37"
+      ],
+      "missing_required_signals": [
+        "medicine entry"
+      ],
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Doctor: Dr. P. Banerjee",
+        "Registration No: WB/34567/2015",
+        "Diagnosis: Morbid Obesity"
+      ],
+      "ops_message": "Classification successful. Document contains clear doctor identifier, registration number, and diagnosis, confirming it as a prescription/consultation note. Note: No specific medicines are prescribed."
     },
     "F024": {
       "file_id": "F024",
       "file_name": "F024_hospital_bill.jpg",
-      "predicted_type": "UNKNOWN",
-      "confidence_score": 0.0,
-      "confidence_band": "LOW",
-      "extracted_signals": [],
+      "predicted_type": "HOSPITAL_BILL",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "METABOLIC CARE CLINIC",
+        "BILL / RECEIPT",
+        "Bill No: MCC/2024/77118",
+        "Patient Name: Neha Kapoor",
+        "Bariatric Consultation             3000.00",
+        "Total Amount: 8000.00"
+      ],
       "missing_required_signals": [],
-      "gate_outcome": "PENDING_REUPLOAD",
-      "key_findings": [],
-      "ops_message": "Classification failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Document identified as a bill/receipt.",
+        "Contains patient name: Neha Kapoor.",
+        "Includes itemized services like 'Bariatric Consultation'.",
+        "Total amount found: 8000.00."
+      ],
+      "ops_message": "Successfully classified as HOSPITAL_BILL based on bill number, patient name, and itemized charges."
     }
   },
   "requirements": {
-    "outcome": "BLOCKED",
+    "outcome": "PASS",
     "claim_category": "CONSULTATION",
-    "required_types": [],
+    "required_types": [
+      "PRESCRIPTION",
+      "HOSPITAL_BILL"
+    ],
     "missing_required_types": [],
-    "ops_message": "Requirements check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": []
+    "ops_message": "All required documents received for CONSULTATION claim.",
+    "key_findings": [
+      "Required document PRESCRIPTION found.",
+      "Required document HOSPITAL_BILL found.",
+      "All required documents for CONSULTATION are present."
+    ]
   },
   "extraction": {
     "F023": {
       "file_id": "F023",
       "file_name": "F023_prescription.jpg",
       "document_type": "PRESCRIPTION",
-      "extraction_confidence": 0.0,
+      "extraction_confidence": 0.95,
       "missing_critical_fields": [
-        "ALL"
+        "prescription_date"
       ],
-      "prescription": null,
+      "prescription": {
+        "doctor_name": "Dr. P. Banerjee",
+        "doctor_registration_number": "WB/34567/2015",
+        "doctor_specialization": "MD (Internal Medicine)",
+        "hospital_or_clinic_name": "Metabolic Care Clinic",
+        "hospital_or_clinic_address": "Kolkata",
+        "patient_name": "Neha Kapoor",
+        "patient_age": "33 years",
+        "patient_gender": "F",
+        "prescription_date": null,
+        "chief_complaint": "Progressive weight gain and fatigue",
+        "diagnosis_primary": "Morbid Obesity - BMI 37",
+        "diagnosis_secondary": [],
+        "medicines": [],
+        "tests_ordered": [],
+        "follow_up_instructions": "Structured nutrition program and weekly follow-up"
+      },
       "hospital_bill": null,
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
-      "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "extraction_notes": [
+        "Prescription date is not mentioned in the document."
+      ],
+      "key_findings": [
+        "Prescription for Neha Kapoor from Dr. P. Banerjee.",
+        "Diagnosis of Morbid Obesity - BMI 37.",
+        "Treatment plan includes Bariatric Consultation and a Customised Diet Plan."
+      ],
+      "ops_message": "Successfully extracted prescription. Critical field 'prescription_date' is missing."
     },
     "F024": {
       "file_id": "F024",
       "file_name": "F024_hospital_bill.jpg",
       "document_type": "HOSPITAL_BILL",
-      "extraction_confidence": 0.0,
-      "missing_critical_fields": [
-        "ALL"
-      ],
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
       "prescription": null,
-      "hospital_bill": null,
+      "hospital_bill": {
+        "hospital_name": "METABOLIC CARE CLINIC",
+        "hospital_address": "Salt Lake, Kolkata - 700091",
+        "gstin": "19ABCDE1234F1Z4",
+        "bill_number": "MCC/2024/77118",
+        "bill_date": "2024-10-18",
+        "patient_name": "Neha Kapoor",
+        "patient_age": null,
+        "patient_gender": null,
+        "referring_doctor_name": null,
+        "line_items": [
+          {
+            "description": "Bariatric Consultation",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 3000.0,
+            "category_hint": "CONSULTATION"
+          },
+          {
+            "description": "Personalised Diet and Nutrition Program",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 5000.0,
+            "category_hint": "PROCEDURE"
+          }
+        ],
+        "subtotal_amount": 8000.0,
+        "gst_amount": 0.0,
+        "discount_amount": null,
+        "total_amount": 8000.0,
+        "payment_mode": null
+      },
       "lab_report": null,
       "pharmacy_bill": null,
       "dental_report": null,
       "discharge_summary": null,
       "extraction_notes": [],
-      "key_findings": [],
-      "ops_message": "Extraction failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}"
+      "key_findings": [
+        "Bill for Neha Kapoor from METABOLIC CARE CLINIC.",
+        "Total amount: 8000.00 on 2024-10-18.",
+        "Services include Bariatric Consultation and a Diet Program."
+      ],
+      "ops_message": "Successfully extracted hospital bill for Neha Kapoor."
     }
   },
   "consistency": {
-    "outcome": "BLOCKED",
-    "confidence_score": 0.0,
-    "ops_message": "Consistency check failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/gen-lang-client-0834637095/locations/global/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
-    "key_findings": [],
+    "outcome": "PASS",
+    "confidence_score": 1.0,
+    "ops_message": "All documents are consistent. Patient name 'Neha Kapoor' and provider 'Metabolic Care Clinic' match across all documents.",
+    "key_findings": [
+      "Patient name 'Neha Kapoor' is consistent across all documents.",
+      "Provider name 'Metabolic Care Clinic' is consistent across all documents.",
+      "No contradictions found in dates, amounts, or diagnoses based on available data."
+    ],
     "issues": []
   }
 }
