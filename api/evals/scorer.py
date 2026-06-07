@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from evals.dataset import EvalCase
+from evals.field_compare import compare_value
 from pipeline.stages import (
     build_consistency_snapshots,
     check_consistency,
@@ -28,6 +29,16 @@ _SECTION = {
     "PHARMACY_BILL": "pharmacy_bill",
     "DENTAL_REPORT": "dental_report",
     "DISCHARGE_SUMMARY": "discharge_summary",
+}
+
+# Decision-relevant fields per document type (from the extraction contract).
+_CRITICAL = {
+    "PRESCRIPTION": ["patient_name", "prescription_date", "diagnosis_primary", "doctor_name"],
+    "HOSPITAL_BILL": ["patient_name", "bill_date", "total_amount"],
+    "LAB_REPORT": ["patient_name", "report_date", "test_results"],
+    "PHARMACY_BILL": ["patient_name", "bill_date", "net_amount"],
+    "DENTAL_REPORT": ["patient_name", "diagnosis", "procedures_recommended_or_done"],
+    "DISCHARGE_SUMMARY": ["patient_name", "discharge_date", "final_diagnosis"],
 }
 
 # Required document types per claim category (from DOCUMENT_REQUIREMENTS_PROMPT).
@@ -201,7 +212,10 @@ class ExtractionAgreementDimension:
 
     def score(self, cases: list[EvalCase]) -> DimensionResult:
         rows: list[dict[str, Any]] = []
-        agreements: list[float] = []
+        agree_scores: list[float] = []        # (exact+normalized)/total per doc
+        exact_scores: list[float] = []        # exact/total per doc
+        crit_scores: list[float] = []         # critical-field agreement per doc
+        mismatches: list[dict[str, Any]] = []
         cand_lat: list[float] = []
         ref_complete = cand_complete = doc_count = 0
         for case in cases:
@@ -220,23 +234,46 @@ class ExtractionAgreementDimension:
                 doc_count += 1
                 ref_complete += int(r_ref.missing_critical_fields == [])
                 cand_complete += int(r_cand.missing_critical_fields == [])
+
                 ref_sec = _section_fields(r_ref, doc.actual_type)
                 cand_sec = _section_fields(r_cand, doc.actual_type)
                 if ref_sec is None or cand_sec is None:
-                    agreement = 1.0 if ref_sec == cand_sec else 0.0
+                    agree = exact = 1.0 if ref_sec == cand_sec else 0.0
+                    crit = agree
                 else:
-                    keys = set(ref_sec) | set(cand_sec)
-                    match = sum(1 for k in keys if ref_sec.get(k) == cand_sec.get(k))
-                    agreement = match / len(keys) if keys else 1.0
-                agreements.append(agreement)
+                    keys = list(set(ref_sec) | set(cand_sec))
+                    verdicts = {k: compare_value(k, ref_sec.get(k), cand_sec.get(k)) for k in keys}
+                    n = len(keys) or 1
+                    agree = sum(v != "mismatch" for v in verdicts.values()) / n
+                    exact = sum(v == "exact" for v in verdicts.values()) / n
+                    crit_fields = [k for k in _CRITICAL.get(doc.actual_type, []) if k in verdicts]
+                    crit = (sum(verdicts[k] != "mismatch" for k in crit_fields) / len(crit_fields)
+                            if crit_fields else agree)
+                    for k, v in verdicts.items():
+                        if v == "mismatch" and len(mismatches) < 40:
+                            mismatches.append({"case_id": case.case_id, "file_id": doc.file_id,
+                                               "field": k, "ref": ref_sec.get(k), "cand": cand_sec.get(k)})
+                agree_scores.append(agree)
+                exact_scores.append(exact)
+                crit_scores.append(crit)
                 rows.append({"case_id": case.case_id, "file_id": doc.file_id,
-                             "document_type": doc.actual_type, "field_agreement": round(agreement, 3)})
-        mean_agree = sum(agreements) / len(agreements) if agreements else 0.0
+                             "document_type": doc.actual_type,
+                             "field_agreement": round(agree, 3),
+                             "exact_only": round(exact, 3),
+                             "critical_field_agreement": round(crit, 3)})
+
+        def _mean(xs):
+            return sum(xs) / len(xs) if xs else 0.0
+
+        mean_agree = _mean(agree_scores)
         return DimensionResult("extraction", mean_agree, {
             "mean_field_agreement": mean_agree,
+            "exact_only": _mean(exact_scores),
+            "critical_field_agreement": _mean(crit_scores),
             "ref_completeness": (ref_complete / doc_count if doc_count else 0.0),
             "cand_completeness": (cand_complete / doc_count if doc_count else 0.0),
             "cand_latency": _latency_stats(cand_lat),
+            "mismatches": mismatches,
             "rows": rows,
         })
 

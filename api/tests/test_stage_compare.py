@@ -12,8 +12,8 @@ def _report():
     req_cand = DimensionResult("requirements", 0.9, {"accuracy": 0.9, "latency": _lat(650)})
     req_ref = {"accuracy": 1.0, "correct": 12, "total": 12}
     ex = DimensionResult("extraction", 0.85, {
-        "mean_field_agreement": 0.85, "ref_completeness": 1.0, "cand_completeness": 0.9,
-        "cand_latency": _lat(1100)})
+        "mean_field_agreement": 0.85, "exact_only": 0.6, "critical_field_agreement": 0.92,
+        "ref_completeness": 1.0, "cand_completeness": 0.9, "cand_latency": _lat(1100)})
     co = DimensionResult("consistency", 0.83, {"outcome_agreement": 0.83, "cand_latency": _lat(750)})
     return build_stage_report(cls_cand, cls_ref, req_cand, req_ref, ex, co,
                               "gemini-3-pro-preview", ("ollama", "qwen2.5:14b"))

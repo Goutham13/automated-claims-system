@@ -26,17 +26,25 @@ def _ref_case(ext, cons_outcome="PASS"):
 def test_extraction_field_agreement_vs_cached(monkeypatch):
     reference = _ref_case(_ext("Fever"))
     monkeypatch.setattr(scorer, "extract_document",
-                        lambda doc, *, backend=None, model=None: _ext("Cough"))  # one field differs
+                        lambda doc, *, backend=None, model=None: _ext("Cough"))  # diagnosis differs
     res = scorer.ExtractionAgreementDimension(("ollama", "q"), reference).score([_case()])
     assert 0.0 < res.score < 1.0
+    # diagnosis_primary is a critical field for PRESCRIPTION → critical agreement dips too
+    assert res.details["critical_field_agreement"] < 1.0
+    assert any(m["field"] == "diagnosis_primary" for m in res.details["mismatches"])
 
 
-def test_extraction_full_agreement_vs_cached(monkeypatch):
-    reference = _ref_case(_ext("Fever"))
-    monkeypatch.setattr(scorer, "extract_document",
-                        lambda doc, *, backend=None, model=None: _ext("Fever"))
+def test_extraction_formatting_only_is_full_agreement(monkeypatch):
+    # ref "Viral Fever" / "Rajesh Kumar"; candidate differs only by case → normalized, not mismatch
+    reference = _ref_case(_ext("Viral Fever"))
+    cand = DocumentExtractionResult(
+        file_id="F1", file_name="rx", document_type="PRESCRIPTION", extraction_confidence=0.9,
+        ops_message="", prescription=PrescriptionFields(
+            patient_name="rajesh", diagnosis_primary="viral fever", doctor_name="a"))
+    monkeypatch.setattr(scorer, "extract_document", lambda doc, *, backend=None, model=None: cand)
     res = scorer.ExtractionAgreementDimension(("ollama", "q"), reference).score([_case()])
-    assert res.score == 1.0
+    assert res.score == 1.0          # case-only differences count as agreement
+    assert res.details["exact_only"] < 1.0   # but not exact
 
 
 def test_consistency_outcome_agreement_vs_cached(monkeypatch):
