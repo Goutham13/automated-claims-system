@@ -1,0 +1,19 @@
+CITY CLINIC, BENGALURU
+12 MG Road, Bengaluru - 560001
+GSTIN: 29ABCDE1234F1Z5
+
+BILL / RECEIPT
+Bill No: CCB/2024/08321          Date: 2024-11-01
+
+Patient Name: Rajesh Kumar
+Age/Gender: 39 / Male
+Referring Doctor: Dr. Arun Sharma
+
+DESCRIPTION                    AMOUNT
+Consultation Fee               1000.00
+CBC Test                       300.00
+Dengue NS1 Test                200.00
+
+Subtotal: 1500.00
+GST: 0.00
+Total Amount: 1500.00

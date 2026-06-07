@@ -1,0 +1,16 @@
+METABOLIC CARE CLINIC
+Salt Lake, Kolkata - 700091
+GSTIN: 19ABCDE1234F1Z4
+
+BILL / RECEIPT
+Bill No: MCC/2024/77118          Date: 2024-10-18
+
+Patient Name: Neha Kapoor
+
+DESCRIPTION                    AMOUNT
+Bariatric Consultation         3000.00
+Personalised Diet and Nutrition Program   5000.00
+
+Subtotal: 8000.00
+GST: 0.00
+Total Amount: 8000.00

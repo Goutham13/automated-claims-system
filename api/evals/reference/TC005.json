@@ -1,0 +1,198 @@
+{
+  "ref_model": "gemini-2.5-pro",
+  "classification": {
+    "F009": {
+      "file_id": "F009",
+      "file_name": "F009_prescription.jpg",
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. Sunil Mehta, MD (Internal Medicine)",
+        "Reg. No: GJ/56789/2014",
+        "Diagnosis: Type 2 Diabetes Mellitus",
+        "Rx:",
+        "Tab Metformin 500mg - 1-0-1 x 30 days"
+      ],
+      "missing_required_signals": [],
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Doctor: Dr. Sunil Mehta",
+        "Diagnosis: Type 2 Diabetes Mellitus",
+        "Medicines: Metformin, Glimepiride"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION based on doctor details, diagnosis, and prescribed medicines."
+    },
+    "F010": {
+      "file_id": "F010",
+      "file_name": "F010_hospital_bill.jpg",
+      "predicted_type": "HOSPITAL_BILL",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "SHREE CARE CLINIC",
+        "BILL / RECEIPT",
+        "Bill No: SCC/2024/22115",
+        "Patient Name: Vikram Joshi",
+        "Total Amount: 3000.00"
+      ],
+      "missing_required_signals": [],
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Identified as a bill/receipt",
+        "Found patient name: Vikram Joshi",
+        "Total amount is 3000.00"
+      ],
+      "ops_message": "Successfully classified as HOSPITAL_BILL with high confidence. All required signals (bill identifier, patient name, monetary amounts) are present."
+    }
+  },
+  "requirements": {
+    "outcome": "PASS",
+    "claim_category": "CONSULTATION",
+    "required_types": [
+      "PRESCRIPTION",
+      "HOSPITAL_BILL"
+    ],
+    "missing_required_types": [],
+    "ops_message": "All required documents received for CONSULTATION claim.",
+    "key_findings": [
+      "All required documents for CONSULTATION (PRESCRIPTION, HOSPITAL_BILL) are present."
+    ]
+  },
+  "extraction": {
+    "F009": {
+      "file_id": "F009",
+      "file_name": "F009_prescription.jpg",
+      "document_type": "PRESCRIPTION",
+      "extraction_confidence": 0.98,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Dr. Sunil Mehta",
+        "doctor_registration_number": "GJ/56789/2014",
+        "doctor_specialization": "MD (Internal Medicine)",
+        "hospital_or_clinic_name": "Shree Care Clinic",
+        "hospital_or_clinic_address": "Ahmedabad",
+        "patient_name": "Vikram Joshi",
+        "patient_age": "45 years",
+        "patient_gender": "M",
+        "prescription_date": "2024-10-15",
+        "chief_complaint": "Polyuria, increased thirst, fatigue",
+        "diagnosis_primary": "Type 2 Diabetes Mellitus",
+        "diagnosis_secondary": [],
+        "medicines": [
+          {
+            "medicine_name": "Tab Metformin",
+            "strength_or_dosage": "500mg",
+            "frequency": "1-0-1",
+            "duration": "30 days",
+            "instruction": null
+          },
+          {
+            "medicine_name": "Tab Glimepiride",
+            "strength_or_dosage": "1mg",
+            "frequency": "1-0-0",
+            "duration": "30 days",
+            "instruction": null
+          }
+        ],
+        "tests_ordered": [
+          {
+            "test_name": "FBS",
+            "note": null
+          },
+          {
+            "test_name": "PPBS",
+            "note": null
+          },
+          {
+            "test_name": "HbA1c",
+            "note": null
+          }
+        ],
+        "follow_up_instructions": "Review after 2 weeks with sugar chart"
+      },
+      "hospital_bill": null,
+      "lab_report": null,
+      "pharmacy_bill": null,
+      "dental_report": null,
+      "discharge_summary": null,
+      "extraction_notes": [],
+      "key_findings": [
+        "Prescription issued to Vikram Joshi on 2024-10-15.",
+        "Diagnosed with Type 2 Diabetes Mellitus.",
+        "Prescribed Metformin and Glimepiride.",
+        "Lab tests ordered: FBS, PPBS, HbA1c."
+      ],
+      "ops_message": "Successfully extracted prescription for Type 2 Diabetes Mellitus."
+    },
+    "F010": {
+      "file_id": "F010",
+      "file_name": "F010_hospital_bill.jpg",
+      "document_type": "HOSPITAL_BILL",
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
+      "prescription": null,
+      "hospital_bill": {
+        "hospital_name": "SHREE CARE CLINIC",
+        "hospital_address": "C.G. Road, Ahmedabad - 380009",
+        "gstin": "24ABCDE1234F1Z5",
+        "bill_number": "SCC/2024/22115",
+        "bill_date": "2024-10-15",
+        "patient_name": "Vikram Joshi",
+        "patient_age": "45",
+        "patient_gender": "Male",
+        "referring_doctor_name": "Dr. Sunil Mehta",
+        "line_items": [
+          {
+            "description": "Diabetes Consultation Fee",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 1200.0,
+            "category_hint": "CONSULTATION"
+          },
+          {
+            "description": "Blood Sugar Profile",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 900.0,
+            "category_hint": "DIAGNOSTIC"
+          },
+          {
+            "description": "HbA1c Test",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 900.0,
+            "category_hint": "DIAGNOSTIC"
+          }
+        ],
+        "subtotal_amount": 3000.0,
+        "gst_amount": 0.0,
+        "discount_amount": null,
+        "total_amount": 3000.0,
+        "payment_mode": null
+      },
+      "lab_report": null,
+      "pharmacy_bill": null,
+      "dental_report": null,
+      "discharge_summary": null,
+      "extraction_notes": [],
+      "key_findings": [
+        "Bill for Vikram Joshi dated 2024-10-15.",
+        "Total amount is 3000.00.",
+        "Services include Diabetes Consultation and lab tests (Blood Sugar Profile, HbA1c)."
+      ],
+      "ops_message": "Successfully extracted hospital bill for Vikram Joshi from Shree Care Clinic."
+    }
+  },
+  "consistency": {
+    "outcome": "PASS",
+    "confidence_score": 1.0,
+    "ops_message": "All documents are consistent. Patient 'Vikram Joshi', date '2024-10-15', and provider 'Shree Care Clinic' match across prescription and hospital bill.",
+    "key_findings": [
+      "Patient name 'Vikram Joshi' is consistent across all documents.",
+      "Treatment date '2024-10-15' is consistent across all documents.",
+      "Provider 'Shree Care Clinic' and Doctor 'Dr. Sunil Mehta' are consistent across all documents."
+    ],
+    "issues": []
+  }
+}

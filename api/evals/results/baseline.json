@@ -1,6 +1,6 @@
 {
   "model": "gemini-3-flash-preview",
-  "created_at": "2026-06-06T20:10:02.482037+00:00",
+  "created_at": "2026-06-07T05:00:55.762703+00:00",
   "dimensions": {
     "classification": {
       "score": 0.9583333333333334,
@@ -9,6 +9,11 @@
         "correct": 23,
         "accuracy": 0.9583333333333334,
         "gate_false_negatives": 1,
+        "latency": {
+          "mean_ms": 5873.9,
+          "median_ms": 5395.5,
+          "p95_ms": 7996.3
+        },
         "confusion": {
           "PRESCRIPTION": {
             "PRESCRIPTION": 12
@@ -31,7 +36,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5251.0
           },
           {
             "case_id": "TC001",
@@ -40,7 +46,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 4397.8
           },
           {
             "case_id": "TC002",
@@ -49,7 +56,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5019.3
           },
           {
             "case_id": "TC002",
@@ -58,7 +66,8 @@
             "predicted": "UNKNOWN",
             "correct": false,
             "confidence": 0.0,
-            "gate_outcome": "PENDING_REUPLOAD"
+            "gate_outcome": "PENDING_REUPLOAD",
+            "latency_ms": 7996.3
           },
           {
             "case_id": "TC003",
@@ -67,7 +76,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 4601.3
           },
           {
             "case_id": "TC003",
@@ -76,7 +86,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5343.3
           },
           {
             "case_id": "TC004",
@@ -85,7 +96,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 4488.3
           },
           {
             "case_id": "TC004",
@@ -94,7 +106,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5835.2
           },
           {
             "case_id": "TC005",
@@ -103,7 +116,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 4761.2
           },
           {
             "case_id": "TC005",
@@ -112,7 +126,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5477.4
           },
           {
             "case_id": "TC006",
@@ -121,7 +136,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 17347.9
           },
           {
             "case_id": "TC007",
@@ -129,8 +145,9 @@
             "actual": "PRESCRIPTION",
             "predicted": "PRESCRIPTION",
             "correct": true,
-            "confidence": 0.85,
-            "gate_outcome": "PASS"
+            "confidence": 0.9,
+            "gate_outcome": "PASS",
+            "latency_ms": 5707.4
           },
           {
             "case_id": "TC007",
@@ -139,7 +156,8 @@
             "predicted": "LAB_REPORT",
             "correct": true,
             "confidence": 0.95,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5447.8
           },
           {
             "case_id": "TC007",
@@ -148,7 +166,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5491.7
           },
           {
             "case_id": "TC008",
@@ -157,7 +176,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 4566.9
           },
           {
             "case_id": "TC008",
@@ -166,7 +186,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5705.5
           },
           {
             "case_id": "TC009",
@@ -175,7 +196,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5264.7
           },
           {
             "case_id": "TC009",
@@ -183,8 +205,9 @@
             "actual": "HOSPITAL_BILL",
             "predicted": "HOSPITAL_BILL",
             "correct": true,
-            "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "confidence": 0.95,
+            "gate_outcome": "PASS",
+            "latency_ms": 5756.1
           },
           {
             "case_id": "TC010",
@@ -193,7 +216,8 @@
             "predicted": "PRESCRIPTION",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5967.1
           },
           {
             "case_id": "TC010",
@@ -202,7 +226,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5106.5
           },
           {
             "case_id": "TC011",
@@ -210,8 +235,9 @@
             "actual": "PRESCRIPTION",
             "predicted": "PRESCRIPTION",
             "correct": true,
-            "confidence": 0.9,
-            "gate_outcome": "PASS"
+            "confidence": 0.95,
+            "gate_outcome": "PASS",
+            "latency_ms": 5047.1
           },
           {
             "case_id": "TC011",
@@ -220,7 +246,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.98,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 5653.4
           },
           {
             "case_id": "TC012",
@@ -228,8 +255,9 @@
             "actual": "PRESCRIPTION",
             "predicted": "PRESCRIPTION",
             "correct": true,
-            "confidence": 0.85,
-            "gate_outcome": "PASS"
+            "confidence": 0.95,
+            "gate_outcome": "PASS",
+            "latency_ms": 4431.3
           },
           {
             "case_id": "TC012",
@@ -238,7 +266,8 @@
             "predicted": "HOSPITAL_BILL",
             "correct": true,
             "confidence": 0.95,
-            "gate_outcome": "PASS"
+            "gate_outcome": "PASS",
+            "latency_ms": 6308.0
           }
         ]
       }

@@ -1,0 +1,180 @@
+{
+  "ref_model": "gemini-2.5-pro",
+  "classification": {
+    "F019": {
+      "file_id": "F019",
+      "file_name": "F019_prescription.jpg",
+      "predicted_type": "PRESCRIPTION",
+      "confidence_score": 0.98,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "Dr. S. Iyer, MBBS, MD (Pulmonology)",
+        "Reg. No: TN/56789/2013",
+        "Chief Complaint: Productive cough and breathlessness",
+        "Diagnosis: Acute Bronchitis",
+        "Rx:",
+        "Tab Amoxicillin 500mg - 1-1-1 x 5 days"
+      ],
+      "missing_required_signals": [],
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Doctor: Dr. S. Iyer",
+        "Registration: TN/56789/2013",
+        "Diagnosis: Acute Bronchitis",
+        "Medicines prescribed"
+      ],
+      "ops_message": "Successfully classified as PRESCRIPTION with high confidence. All required signals (doctor ID, diagnosis, medicine) are present."
+    },
+    "F020": {
+      "file_id": "F020",
+      "file_name": "F020_hospital_bill.jpg",
+      "predicted_type": "HOSPITAL_BILL",
+      "confidence_score": 0.99,
+      "confidence_band": "HIGH",
+      "extracted_signals": [
+        "APOLLO HOSPITALS",
+        "BILL / RECEIPT",
+        "Bill No: APH/2024/91003",
+        "Patient Name: Deepak Shah",
+        "Total Amount: 4500.00"
+      ],
+      "missing_required_signals": [],
+      "gate_outcome": "PASS",
+      "key_findings": [
+        "Document identified as a Hospital Bill.",
+        "Hospital: APOLLO HOSPITALS",
+        "Total Amount: 4500.00"
+      ],
+      "ops_message": "Successfully classified as HOSPITAL_BILL. All required signals (bill identifier, patient name, monetary amount) are present."
+    }
+  },
+  "requirements": {
+    "outcome": "PASS",
+    "claim_category": "CONSULTATION",
+    "required_types": [
+      "PRESCRIPTION",
+      "HOSPITAL_BILL"
+    ],
+    "missing_required_types": [],
+    "ops_message": "All required documents (PRESCRIPTION, HOSPITAL_BILL) have been received.",
+    "key_findings": [
+      "All required documents for CONSULTATION are present."
+    ]
+  },
+  "extraction": {
+    "F019": {
+      "file_id": "F019",
+      "file_name": "F019_prescription.jpg",
+      "document_type": "PRESCRIPTION",
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
+      "prescription": {
+        "doctor_name": "Dr. S. Iyer",
+        "doctor_registration_number": "TN/56789/2013",
+        "doctor_specialization": "MBBS, MD (Pulmonology)",
+        "hospital_or_clinic_name": "Apollo Hospitals",
+        "hospital_or_clinic_address": "Chennai",
+        "patient_name": "Deepak Shah",
+        "patient_age": "41 years",
+        "patient_gender": "M",
+        "prescription_date": "2024-11-03",
+        "chief_complaint": "Productive cough and breathlessness",
+        "diagnosis_primary": "Acute Bronchitis",
+        "diagnosis_secondary": [],
+        "medicines": [
+          {
+            "medicine_name": "Tab Amoxicillin",
+            "strength_or_dosage": "500mg",
+            "frequency": "1-1-1",
+            "duration": "5 days",
+            "instruction": null
+          },
+          {
+            "medicine_name": "Salbutamol Inhaler",
+            "strength_or_dosage": "2 puffs",
+            "frequency": "SOS",
+            "duration": null,
+            "instruction": null
+          }
+        ],
+        "tests_ordered": [],
+        "follow_up_instructions": "Review after 4 days"
+      },
+      "hospital_bill": null,
+      "lab_report": null,
+      "pharmacy_bill": null,
+      "dental_report": null,
+      "discharge_summary": null,
+      "extraction_notes": [],
+      "key_findings": [
+        "Prescription for Deepak Shah",
+        "Diagnosis: Acute Bronchitis",
+        "Prescribed Amoxicillin and Salbutamol Inhaler"
+      ],
+      "ops_message": "Successfully extracted 1 prescription for Deepak Shah from Dr. S. Iyer."
+    },
+    "F020": {
+      "file_id": "F020",
+      "file_name": "F020_hospital_bill.jpg",
+      "document_type": "HOSPITAL_BILL",
+      "extraction_confidence": 0.95,
+      "missing_critical_fields": [],
+      "prescription": null,
+      "hospital_bill": {
+        "hospital_name": "APOLLO HOSPITALS",
+        "hospital_address": "Greams Road, Chennai - 600006",
+        "gstin": "33ABCDE1234F1Z2",
+        "bill_number": "APH/2024/91003",
+        "bill_date": "2024-11-03",
+        "patient_name": "Deepak Shah",
+        "patient_age": "41",
+        "patient_gender": "Male",
+        "referring_doctor_name": "Dr. S. Iyer",
+        "line_items": [
+          {
+            "description": "Consultation Fee",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 1500.0,
+            "category_hint": "CONSULTATION"
+          },
+          {
+            "description": "Medicines",
+            "quantity": null,
+            "unit_rate": null,
+            "amount": 3000.0,
+            "category_hint": "MEDICINE"
+          }
+        ],
+        "subtotal_amount": 4500.0,
+        "gst_amount": 0.0,
+        "discount_amount": null,
+        "total_amount": 4500.0,
+        "payment_mode": null
+      },
+      "lab_report": null,
+      "pharmacy_bill": null,
+      "dental_report": null,
+      "discharge_summary": null,
+      "extraction_notes": [],
+      "key_findings": [
+        "Bill for Deepak Shah from APOLLO HOSPITALS.",
+        "Total amount is 4500.00.",
+        "Bill date is 2024-11-03."
+      ],
+      "ops_message": "Successfully extracted 13 fields from HOSPITAL_BILL."
+    }
+  },
+  "consistency": {
+    "outcome": "PASS",
+    "confidence_score": 1.0,
+    "ops_message": "All documents are consistent. Patient 'Deepak Shah', date '2024-11-03', and provider 'Apollo Hospitals' match across the prescription and hospital bill.",
+    "key_findings": [
+      "Patient name 'Deepak Shah' is consistent across all documents.",
+      "Treatment date '2024-11-03' is consistent across all documents.",
+      "Provider 'Apollo Hospitals' and Doctor 'Dr. S. Iyer' are consistent across documents.",
+      "Diagnosis 'Acute Bronchitis' from prescription aligns with the hospital bill."
+    ],
+    "issues": []
+  }
+}

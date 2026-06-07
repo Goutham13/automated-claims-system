@@ -1,0 +1,16 @@
+ORTHO IMAGING CENTRE
+Jubilee Hills, Hyderabad - 500033
+GSTIN: 36ABCDE1234F1Z7
+
+BILL / RECEIPT
+Bill No: OIC/2024/44102          Date: 2024-11-02
+
+Patient Name: Suresh Patil
+Referring Doctor: Dr. Venkat Rao
+
+DESCRIPTION                    AMOUNT
+MRI Lumbar Spine               15000.00
+
+Subtotal: 15000.00
+GST: 0.00
+Total Amount: 15000.00
