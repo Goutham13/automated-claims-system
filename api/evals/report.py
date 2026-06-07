@@ -23,6 +23,11 @@ def render_markdown(result: dict[str, Any]) -> str:
         lines.append(f"## {name}: {d['score']:.1%} ({det.get('correct')}/{det.get('total')})")
         if det.get("gate_false_negatives") is not None:
             lines.append(f"- gate false-negatives: {det['gate_false_negatives']}")
+        lat = det.get("latency")
+        if lat:
+            lines.append(
+                f"- latency: mean {lat['mean_ms']:.0f} ms · median {lat['median_ms']:.0f} ms · p95 {lat['p95_ms']:.0f} ms"
+            )
         fails = [r for r in det.get("rows", []) if not r.get("correct")]
         if fails:
             lines.append("")
@@ -38,6 +43,10 @@ def _rows(result: dict[str, Any]) -> dict[tuple[str, str], dict]:
     return {(r["case_id"], r["file_id"]): r for r in rows}
 
 
+def _latency(result: dict[str, Any]) -> dict[str, float]:
+    return result["dimensions"].get("classification", {}).get("details", {}).get("latency", {}) or {}
+
+
 def compare(new: dict[str, Any], baseline: dict[str, Any]) -> dict[str, Any]:
     nb, bb = _rows(new), _rows(baseline)
     regressions: list[dict] = []
@@ -50,9 +59,17 @@ def compare(new: dict[str, Any], baseline: dict[str, Any]) -> dict[str, Any]:
             regressions.append(nr)
         elif not br["correct"] and nr["correct"]:
             improvements.append(nr)
+    nlat, blat = _latency(new), _latency(baseline)
+    latency_delta = {
+        "baseline_mean_ms": blat.get("mean_ms"),
+        "new_mean_ms": nlat.get("mean_ms"),
+        "baseline_median_ms": blat.get("median_ms"),
+        "new_median_ms": nlat.get("median_ms"),
+    }
     return {
         "baseline_model": baseline["model"],
         "new_model": new["model"],
         "regressions": regressions,
         "improvements": improvements,
+        "latency_delta": latency_delta,
     }

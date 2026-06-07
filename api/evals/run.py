@@ -52,6 +52,10 @@ def main() -> None:
         diff = compare(result, baseline)
         print(f"\n## Compare vs {diff['baseline_model']}")
         print(f"Regressions: {len(diff['regressions'])} | Improvements: {len(diff['improvements'])}")
+        ld = diff.get("latency_delta", {})
+        if ld.get("new_mean_ms") is not None:
+            print(f"Latency mean: {ld.get('baseline_mean_ms')} ms -> {ld.get('new_mean_ms')} ms "
+                  f"(median {ld.get('baseline_median_ms')} -> {ld.get('new_median_ms')} ms)")
         for r in diff["regressions"]:
             print(f"  REGRESSED {r['case_id']}/{r['file_id']}: {r['actual']} -> {r['predicted']}")
         for r in diff["improvements"]:
