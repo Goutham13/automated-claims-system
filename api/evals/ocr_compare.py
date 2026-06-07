@@ -69,7 +69,7 @@ def build_report(pairs: list[OcrPair]) -> dict:
         rows.append({"case_id": p.case_id, "file_id": p.file_id, **sim})
     n = len(rows) or 1
     return {
-        "comparison": "vlm_ocr_vs_gemini3pro_ocr",
+        "comparison": "vlm_ocr_vs_claude_opus_4_8_ocr",
         "docs": len(rows),
         "mean_char_ratio": round(sum(ratios) / n, 3),
         "mean_token_jaccard": round(sum(jaccards) / n, 3),
@@ -79,7 +79,7 @@ def build_report(pairs: list[OcrPair]) -> dict:
 
 def render_markdown(report: dict) -> str:
     lines = [
-        "# OCR comparison — VLM (`qwen2.5vl-ocr`) vs `gemini-3-pro` OCR",
+        "# OCR comparison — VLM (`qwen2.5vl-ocr`) vs Claude Opus 4.8 OCR (reference)",
         f"Docs: {report['docs']} · mean char-ratio {report['mean_char_ratio']:.1%} · "
         f"mean token-Jaccard {report['mean_token_jaccard']:.1%}",
         "",
