@@ -12,7 +12,39 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from evals.dataset import EvalCase
-from pipeline.stages import classify_document
+from pipeline.stages import (
+    build_consistency_snapshots,
+    check_consistency,
+    check_requirements,
+    classify_document,
+    extract_document,
+)
+
+# Document-type → DocumentExtractionResult section attribute (for field-agreement).
+_SECTION = {
+    "PRESCRIPTION": "prescription",
+    "HOSPITAL_BILL": "hospital_bill",
+    "LAB_REPORT": "lab_report",
+    "PHARMACY_BILL": "pharmacy_bill",
+    "DENTAL_REPORT": "dental_report",
+    "DISCHARGE_SUMMARY": "discharge_summary",
+}
+
+# Required document types per claim category (from DOCUMENT_REQUIREMENTS_PROMPT).
+_REQUIRED = {
+    "CONSULTATION": {"PRESCRIPTION", "HOSPITAL_BILL"},
+    "DIAGNOSTIC": {"PRESCRIPTION", "LAB_REPORT", "HOSPITAL_BILL"},
+    "PHARMACY": {"PRESCRIPTION", "PHARMACY_BILL"},
+    "DENTAL": {"HOSPITAL_BILL"},
+    "VISION": {"PRESCRIPTION", "HOSPITAL_BILL"},
+    "ALTERNATIVE_MEDICINE": {"PRESCRIPTION", "HOSPITAL_BILL"},
+}
+
+
+def _expected_requirements(claim_category: str, actual_types: list[str]) -> str:
+    """Deterministic expected outcome: PASS if all required types present, else NOT_PASS."""
+    required = _REQUIRED.get(claim_category, set())
+    return "PASS" if required.issubset(set(actual_types)) else "NOT_PASS"
 
 
 def _latency_stats(samples: list[float]) -> dict[str, float]:
@@ -83,3 +115,39 @@ class ClassificationDimension:
             "confusion": {k: dict(v) for k, v in confusion.items()},
             "rows": rows,
         })
+
+
+class RequirementsDimension:
+    """Score each model's requirements outcome (PASS vs not) against the computed rule outcome.
+
+    `ref` and `cand` are (backend, model) tuples. Stage-isolated: uses ground-truth actual_types.
+    """
+
+    name = "requirements"
+
+    def __init__(self, ref: tuple[str, str], cand: tuple[str, str]):
+        self.ref, self.cand = ref, cand
+
+    def _run(self, cases: list[EvalCase], backend: str, model: str) -> dict[str, Any]:
+        correct = total = 0
+        latencies: list[float] = []
+        rows: list[dict[str, Any]] = []
+        for case in cases:
+            actual_types = [d.actual_type for d in case.documents]
+            expected = _expected_requirements(case.claim_category, actual_types)
+            t0 = time.perf_counter()
+            res = check_requirements(case.claim_category, actual_types, backend=backend, model=model)
+            latencies.append((time.perf_counter() - t0) * 1000.0)
+            got = "PASS" if res.outcome == "PASS" else "NOT_PASS"
+            is_ok = got == expected
+            correct += int(is_ok)
+            total += 1
+            rows.append({"case_id": case.case_id, "expected": expected,
+                         "outcome": res.outcome, "normalized": got, "correct": is_ok})
+        return {"accuracy": (correct / total if total else 0.0), "correct": correct,
+                "total": total, "latency": _latency_stats(latencies), "rows": rows}
+
+    def score(self, cases: list[EvalCase]) -> DimensionResult:
+        ref = self._run(cases, *self.ref)
+        cand = self._run(cases, *self.cand)
+        return DimensionResult("requirements", cand["accuracy"], {"ref": ref, "cand": cand})
