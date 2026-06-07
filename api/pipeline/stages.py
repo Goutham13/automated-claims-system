@@ -39,14 +39,18 @@ def _first(*vals):
     return None
 
 
-def classify_document(doc: dict) -> DocumentClassificationResult:
+def classify_document(
+    doc: dict, *, backend: str | None = None, model: str | None = None
+) -> DocumentClassificationResult:
     payload = UploadedDocumentInput(
         file_id=doc["file_id"],
         file_name=doc["file_name"],
         document_text=doc.get("document_text", ""),
     )
     try:
-        return structured_llm_call(DOCUMENT_GATE_PROMPT, payload, DocumentClassificationResult)
+        return structured_llm_call(
+            DOCUMENT_GATE_PROMPT, payload, DocumentClassificationResult, backend=backend, model=model
+        )
     except Exception as exc:
         return DocumentClassificationResult(
             file_id=doc["file_id"],
@@ -59,10 +63,16 @@ def classify_document(doc: dict) -> DocumentClassificationResult:
         )
 
 
-def check_requirements(claim_category: str, predicted_types: list[str]) -> DocumentRequirementsResult:
+def check_requirements(
+    claim_category: str, predicted_types: list[str], *,
+    backend: str | None = None, model: str | None = None,
+) -> DocumentRequirementsResult:
     payload = DocumentRequirementsInput(claim_category=claim_category, predicted_types=predicted_types)
     try:
-        return structured_llm_call(DOCUMENT_REQUIREMENTS_PROMPT, payload, DocumentRequirementsResult)
+        return structured_llm_call(
+            DOCUMENT_REQUIREMENTS_PROMPT, payload, DocumentRequirementsResult,
+            backend=backend, model=model,
+        )
     except Exception as exc:
         return DocumentRequirementsResult(
             outcome="BLOCKED",
@@ -71,7 +81,9 @@ def check_requirements(claim_category: str, predicted_types: list[str]) -> Docum
         )
 
 
-def extract_document(doc: dict) -> DocumentExtractionResult:
+def extract_document(
+    doc: dict, *, backend: str | None = None, model: str | None = None
+) -> DocumentExtractionResult:
     payload = ExtractionInputDocument(
         file_id=doc["file_id"],
         file_name=doc["file_name"],
@@ -79,7 +91,9 @@ def extract_document(doc: dict) -> DocumentExtractionResult:
         document_text=doc.get("document_text", ""),
     )
     try:
-        return structured_llm_call(DOCUMENT_EXTRACTION_PROMPT, payload, DocumentExtractionResult)
+        return structured_llm_call(
+            DOCUMENT_EXTRACTION_PROMPT, payload, DocumentExtractionResult, backend=backend, model=model
+        )
     except Exception as exc:
         return DocumentExtractionResult(
             file_id=doc["file_id"],
@@ -150,6 +164,8 @@ def check_consistency(
     *,
     claimed_amount: float | None = None,
     treatment_date: str | None = None,
+    backend: str | None = None,
+    model: str | None = None,
 ) -> ConsistencyCheckResult:
     payload = ConsistencyCheckInput(
         claimed_amount=claimed_amount,
@@ -157,7 +173,9 @@ def check_consistency(
         extracted_documents=json.dumps([s.model_dump() for s in snapshots]),
     )
     try:
-        return structured_llm_call(CONSISTENCY_CHECK_PROMPT, payload, ConsistencyCheckResult)
+        return structured_llm_call(
+            CONSISTENCY_CHECK_PROMPT, payload, ConsistencyCheckResult, backend=backend, model=model
+        )
     except Exception as exc:
         return ConsistencyCheckResult(
             outcome="BLOCKED",

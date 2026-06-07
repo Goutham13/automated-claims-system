@@ -42,9 +42,14 @@ def structured_llm_call(
     *,
     model: str | None = None,
     client: Any | None = None,
+    backend: str | None = None,
 ) -> T:
-    """Call the configured backend with a typed payload; return a parsed `output_model`."""
-    backend = os.getenv("PIPELINE_BACKEND", "gemini").lower()
+    """Call the configured backend with a typed payload; return a parsed `output_model`.
+
+    `backend` overrides `PIPELINE_BACKEND` for this call (used by the eval harness to drive
+    both gemini and a self-hosted candidate within one process).
+    """
+    backend = (backend or os.getenv("PIPELINE_BACKEND", "gemini")).lower()
     if backend == "ollama":
         return _ollama_call(system_prompt, payload, output_model, model=model)
     return _gemini_call(system_prompt, payload, output_model, model=model, client=client)
