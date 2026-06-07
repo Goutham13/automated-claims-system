@@ -16,16 +16,24 @@ def test_expected_requirements_rules():
     assert _expected_requirements("DIAGNOSTIC", ["PRESCRIPTION", "HOSPITAL_BILL"]) == "NOT_PASS"
 
 
-def test_requirements_dimension_scores_each_model(monkeypatch):
+def test_requirements_dimension_scores_single_model(monkeypatch):
     cases = [EvalCase("TC1", "c", "CONSULTATION",
                       [_doc("F1", "PRESCRIPTION"), _doc("F2", "HOSPITAL_BILL")])]
 
     def fake_req(cat, types, *, backend=None, model=None):
-        outcome = "PASS" if backend == "gemini" else "PENDING_REUPLOAD"
-        return DocumentRequirementsResult(outcome=outcome, claim_category=cat, ops_message="")
+        # expected is PASS (both required types present); candidate returns wrong outcome
+        return DocumentRequirementsResult(outcome="PENDING_REUPLOAD", claim_category=cat, ops_message="")
 
     monkeypatch.setattr(scorer, "check_requirements", fake_req)
-    dim = RequirementsDimension(("gemini", "gemini-x"), ("ollama", "qwen"))
-    res = dim.score(cases)
-    assert res.details["ref"]["accuracy"] == 1.0   # gemini -> PASS == expected PASS
-    assert res.details["cand"]["accuracy"] == 0.0   # candidate -> NOT_PASS != expected PASS
+    res = RequirementsDimension(("ollama", "qwen")).score(cases)
+    assert res.details["accuracy"] == 0.0   # candidate -> NOT_PASS != expected PASS
+
+
+def test_requirements_dimension_correct(monkeypatch):
+    cases = [EvalCase("TC1", "c", "CONSULTATION",
+                      [_doc("F1", "PRESCRIPTION"), _doc("F2", "HOSPITAL_BILL")])]
+    monkeypatch.setattr(scorer, "check_requirements",
+                        lambda cat, types, *, backend=None, model=None:
+                        DocumentRequirementsResult(outcome="PASS", claim_category=cat, ops_message=""))
+    res = RequirementsDimension(("gemini", "g")).score(cases)
+    assert res.details["accuracy"] == 1.0

@@ -120,17 +120,17 @@ class ClassificationDimension:
 
 
 class RequirementsDimension:
-    """Score each model's requirements outcome (PASS vs not) against the computed rule outcome.
+    """Score one model's requirements outcome (PASS vs not) against the computed rule outcome.
 
-    `ref` and `cand` are (backend, model) tuples. Stage-isolated: uses ground-truth actual_types.
+    `model` is a (backend, model) tuple. Stage-isolated: uses ground-truth actual_types.
     """
 
     name = "requirements"
 
-    def __init__(self, ref: tuple[str, str], cand: tuple[str, str]):
-        self.ref, self.cand = ref, cand
+    def __init__(self, model: tuple[str, str]):
+        self.model = model
 
-    def _run(self, cases: list[EvalCase], backend: str, model: str) -> dict[str, Any]:
+    def score(self, cases: list[EvalCase]) -> DimensionResult:
         correct = total = 0
         latencies: list[float] = []
         rows: list[dict[str, Any]] = []
@@ -138,7 +138,8 @@ class RequirementsDimension:
             actual_types = [d.actual_type for d in case.documents]
             expected = _expected_requirements(case.claim_category, actual_types)
             t0 = time.perf_counter()
-            res = check_requirements(case.claim_category, actual_types, backend=backend, model=model)
+            res = check_requirements(case.claim_category, actual_types,
+                                     backend=self.model[0], model=self.model[1])
             latencies.append((time.perf_counter() - t0) * 1000.0)
             got = "PASS" if res.outcome == "PASS" else "NOT_PASS"
             is_ok = got == expected
@@ -146,13 +147,40 @@ class RequirementsDimension:
             total += 1
             rows.append({"case_id": case.case_id, "expected": expected,
                          "outcome": res.outcome, "normalized": got, "correct": is_ok})
-        return {"accuracy": (correct / total if total else 0.0), "correct": correct,
-                "total": total, "latency": _latency_stats(latencies), "rows": rows}
+        accuracy = correct / total if total else 0.0
+        return DimensionResult("requirements", accuracy, {
+            "accuracy": accuracy, "correct": correct, "total": total,
+            "latency": _latency_stats(latencies), "rows": rows})
 
-    def score(self, cases: list[EvalCase]) -> DimensionResult:
-        ref = self._run(cases, *self.ref)
-        cand = self._run(cases, *self.cand)
-        return DimensionResult("requirements", cand["accuracy"], {"ref": ref, "cand": cand})
+
+def score_cached_classification(cases: list[EvalCase], reference: dict[str, Any]) -> dict[str, Any]:
+    """Accuracy of the cached reference classification vs true labels (no model calls)."""
+    correct = total = 0
+    for case in cases:
+        ref_case = reference.get(case.case_id)
+        if ref_case is None:
+            continue
+        for doc in case.documents:
+            r = ref_case.classification.get(doc.file_id)
+            if r is None:
+                continue
+            correct += int(r.predicted_type == doc.actual_type)
+            total += 1
+    return {"accuracy": (correct / total if total else 0.0), "correct": correct, "total": total}
+
+
+def score_cached_requirements(cases: list[EvalCase], reference: dict[str, Any]) -> dict[str, Any]:
+    """Accuracy of the cached reference requirements vs computed rule outcome (no model calls)."""
+    correct = total = 0
+    for case in cases:
+        ref_case = reference.get(case.case_id)
+        if ref_case is None or ref_case.requirements is None:
+            continue
+        expected = _expected_requirements(case.claim_category, [d.actual_type for d in case.documents])
+        got = "PASS" if ref_case.requirements.outcome == "PASS" else "NOT_PASS"
+        correct += int(got == expected)
+        total += 1
+    return {"accuracy": (correct / total if total else 0.0), "correct": correct, "total": total}
 
 
 def _section_fields(result, document_type: str) -> dict | None:
@@ -163,26 +191,29 @@ def _section_fields(result, document_type: str) -> dict | None:
 
 
 class ExtractionAgreementDimension:
-    """Field-agreement of the candidate's extraction vs the Gemini reference (no gold labels)."""
+    """Field-agreement of the candidate's extraction vs the cached Gemini golden set."""
 
     name = "extraction"
 
-    def __init__(self, ref: tuple[str, str], cand: tuple[str, str]):
-        self.ref, self.cand = ref, cand
+    def __init__(self, cand: tuple[str, str], reference: dict[str, Any]):
+        self.cand = cand
+        self.reference = reference  # {case_id: RefCase}
 
     def score(self, cases: list[EvalCase]) -> DimensionResult:
         rows: list[dict[str, Any]] = []
         agreements: list[float] = []
-        ref_lat: list[float] = []
         cand_lat: list[float] = []
         ref_complete = cand_complete = doc_count = 0
         for case in cases:
+            ref_case = self.reference.get(case.case_id)
+            if ref_case is None:
+                continue
             for doc in case.documents:
+                r_ref = ref_case.extraction.get(doc.file_id)
+                if r_ref is None:
+                    continue
                 d = {"file_id": doc.file_id, "file_name": doc.file_name,
                      "document_type": doc.actual_type, "document_text": doc.ocr_text}
-                t0 = time.perf_counter()
-                r_ref = extract_document(d, backend=self.ref[0], model=self.ref[1])
-                ref_lat.append((time.perf_counter() - t0) * 1000.0)
                 t1 = time.perf_counter()
                 r_cand = extract_document(d, backend=self.cand[0], model=self.cand[1])
                 cand_lat.append((time.perf_counter() - t1) * 1000.0)
@@ -205,50 +236,45 @@ class ExtractionAgreementDimension:
             "mean_field_agreement": mean_agree,
             "ref_completeness": (ref_complete / doc_count if doc_count else 0.0),
             "cand_completeness": (cand_complete / doc_count if doc_count else 0.0),
-            "ref_latency": _latency_stats(ref_lat),
             "cand_latency": _latency_stats(cand_lat),
             "rows": rows,
         })
 
 
 class ConsistencyAgreementDimension:
-    """Outcome-agreement of the candidate's consistency check vs Gemini, on identical snapshots."""
+    """Outcome-agreement of the candidate's consistency check vs the cached Gemini golden set.
+
+    Uses the cached reference extraction to build the (identical) snapshot input.
+    """
 
     name = "consistency"
 
-    def __init__(self, ref: tuple[str, str], cand: tuple[str, str]):
-        self.ref, self.cand = ref, cand
+    def __init__(self, cand: tuple[str, str], reference: dict[str, Any]):
+        self.cand = cand
+        self.reference = reference  # {case_id: RefCase}
 
     def score(self, cases: list[EvalCase]) -> DimensionResult:
         rows: list[dict[str, Any]] = []
         agree = total = 0
-        ref_lat: list[float] = []
         cand_lat: list[float] = []
         for case in cases:
-            # Fixed input: snapshots from the reference model's extraction.
-            ref_extractions = [
-                extract_document(
-                    {"file_id": d.file_id, "file_name": d.file_name,
-                     "document_type": d.actual_type, "document_text": d.ocr_text},
-                    backend=self.ref[0], model=self.ref[1])
-                for d in case.documents
-            ]
+            ref_case = self.reference.get(case.case_id)
+            if ref_case is None:
+                continue
+            ref_extractions = [ref_case.extraction[d.file_id]
+                               for d in case.documents if d.file_id in ref_case.extraction]
             snaps = build_consistency_snapshots(ref_extractions)
-            t0 = time.perf_counter()
-            r_ref = check_consistency(snaps, backend=self.ref[0], model=self.ref[1])
-            ref_lat.append((time.perf_counter() - t0) * 1000.0)
             t1 = time.perf_counter()
             r_cand = check_consistency(snaps, backend=self.cand[0], model=self.cand[1])
             cand_lat.append((time.perf_counter() - t1) * 1000.0)
-            is_match = r_ref.outcome == r_cand.outcome
+            is_match = ref_case.consistency.outcome == r_cand.outcome
             agree += int(is_match)
             total += 1
-            rows.append({"case_id": case.case_id, "ref_outcome": r_ref.outcome,
+            rows.append({"case_id": case.case_id, "ref_outcome": ref_case.consistency.outcome,
                          "cand_outcome": r_cand.outcome, "match": is_match})
         rate = agree / total if total else 0.0
         return DimensionResult("consistency", rate, {
             "outcome_agreement": rate,
-            "ref_latency": _latency_stats(ref_lat),
             "cand_latency": _latency_stats(cand_lat),
             "rows": rows,
         })
