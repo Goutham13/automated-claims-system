@@ -74,6 +74,36 @@ RAM note (16 GB): the OCR VLM (~6.9 GB) and the text model (~4.7 GB) can't co-re
 few seconds of reload per claim. The measured latencies above are pure inference (no swap during a
 single-model eval).
 
+## All-stage comparison (instruct vs gemini)
+
+`python -m evals.stage_compare` compares the self-hosted candidate against the Gemini reference across
+all four stages — accuracy vs labels for classification/requirements, agreement-vs-Gemini for
+extraction/consistency (no gold labels), plus per-stage latency. Stage-isolated (ground-truth
+`actual_types` feed requirements/extraction; consistency uses the reference model's snapshots).
+
+Result — `qwen2.5:7b-instruct` (ollama) vs `gemini-3-flash-preview`:
+
+| stage | metric | gemini (ref) | instruct (cand) |
+|---|---|---|---|
+| classification | accuracy vs truth | 95.8% | 91.7% |
+| requirements | accuracy vs computed rule | 100% | 91.7% |
+| extraction | field-agreement vs ref | — | **58.3%** |
+| consistency | outcome-agreement vs ref | — | 100% |
+
+Mean latency (ms, ref → cand): classification 20618→5699 · requirements 2972→1587 ·
+extraction 6504→20450 · consistency 5148→2561. Extraction critical-field completeness: ref 91.7%,
+cand 100%.
+
+**Read:** the local instruct model is viable for **classification, requirements, and consistency**
+(close accuracy / full outcome-agreement, and faster on those stages). **Extraction is the risk** —
+only 58% field-agreement with Gemini despite higher completeness, meaning the local model fills all
+critical fields but with materially different *values* (likely date/amount/name normalization, to be
+investigated). Extraction needs prompt tuning / a larger model / authored gold labels before it can
+be trusted self-hosted; classification/requirements/consistency can move to the local model now.
+Extraction latency is also ~3× slower locally (large nested JSON output).
+
+(`gemini` remains the default backend; the self-hosted candidate is opt-in via `PIPELINE_BACKEND=ollama`.)
+
 ## Deferred
 
 Extraction field-scoring & consistency (need authored labels), end-to-end decision/amount
